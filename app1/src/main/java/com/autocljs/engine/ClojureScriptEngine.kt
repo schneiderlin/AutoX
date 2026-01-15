@@ -3,6 +3,7 @@ package com.autocljs.engine
 import android.content.Context
 import android.util.Log
 import com.autocljs.runtime.ScriptRuntime
+import com.autocljs.runtime.api.JsConsole
 import com.autocljs.script.ScriptSource
 import com.autocljs.script.StringScriptSource
 import org.mozilla.javascript.Context
@@ -65,10 +66,39 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
                 }
             }
             
+            // Expose Console API to JavaScript
+            exposeConsole()
+            
             Log.d(LOG_TAG, "Rhino context and scope initialized")
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to initialize Rhino", e)
             throw RuntimeException("Failed to initialize Rhino JavaScript engine", e)
+        }
+    }
+    
+    /**
+     * Expose Console API to JavaScript.
+     * Makes console.log(), console.error(), etc. available in JavaScript code.
+     */
+    private fun exposeConsole() {
+        val ctx = rhinoContext ?: throw IllegalStateException("Context not initialized")
+        val scp = scope ?: throw IllegalStateException("Scope not initialized")
+        val rt = runtime ?: throw IllegalStateException("Runtime not initialized")
+        
+        try {
+            // Create JavaScript console wrapper
+            val jsConsole = JsConsole(rt.console)
+            
+            // Set parent scope for the console object
+            jsConsole.parentScope = scp
+            
+            // Expose console to JavaScript global scope
+            ScriptableObject.putProperty(scp, "console", jsConsole)
+            
+            Log.d(LOG_TAG, "Console API exposed to JavaScript")
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Failed to expose console API", e)
+            throw RuntimeException("Failed to expose console API", e)
         }
     }
     
