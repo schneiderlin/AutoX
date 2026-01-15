@@ -1,6 +1,6 @@
 ---
 name: AutoCLJS Essential Features Port Plan
-overview: "A focused plan to port essential AutoX.js features for autocljs: script execution, basic automation (click), and element inspection. Excludes UI frameworks, ML, OCR, and other non-essential features."
+overview: "A focused plan to port essential AutoX.js features for autocljs: script execution and basic automation (click). Element inspection will be handled by uiauto.dev. Excludes UI frameworks, ML, OCR, and other non-essential features."
 todos:
   - id: phase1
     content: "Phase 1: Script Execution - Port ScriptEngine interface, minimal ScriptRuntime with Console, ScriptEngineService, and ScriptSource. Test with hello world script."
@@ -12,7 +12,7 @@ todos:
       - phase1
   - id: phase3
     content: "Phase 3: Element Inspection - Port UiObject, UiSelector/UiGlobalSelector, filter system, and search algorithms. Test finding elements by text/id and getting properties."
-    status: pending
+    status: cancelled
     dependencies:
       - phase2
 ---
@@ -21,7 +21,7 @@ todos:
 
 ## Goal
 
-Create autocljs - a ClojureScript library for Android automation by porting essential features from AutoX.js. Focus on minimal viable features: script execution, basic automation, and element inspection.
+Create autocljs - a ClojureScript library for Android automation by porting essential features from AutoX.js. Focus on minimal viable features: script execution and basic automation (coordinate-based clicks). Element inspection will be handled by uiauto.dev, so Phase 3 is not needed.
 
 **Architecture Note**: ClojureScript is compiled to JavaScript before reaching this library. The library executes compiled JavaScript code and provides Android APIs to the JavaScript runtime.
 
@@ -51,20 +51,13 @@ graph TB
         Automator[Simple Action Automator]
     end
     
-    subgraph Inspection["Inspection Layer"]
-        UiObject[UiObject]
-        Selector[UiSelector]
-        Filters[Filter System]
-    end
-    
     Engine --> Runtime
     Runtime --> Service
     Service --> Automation
     Automation --> Accessibility
     Bridge --> Automator
-    Automator --> Inspection
-    Inspection --> UiObject
-    Selector --> Filters
+    
+    Note1[Element Inspection<br/>Handled by uiauto.dev]
 ```
 
 ## Phase 1: Script Execution (Hello World)
@@ -232,79 +225,9 @@ Perform click actions on screen coordinates or UI elements.
 
 ## Phase 3: Element Inspection
 
-### Goal
+**Status**: ❌ **CANCELLED** - Using uiauto.dev for element inspection instead
 
-Find UI elements by text, id, position, or other properties and get their information.
-
-### Essential Components
-
-#### 3.1 UiObject
-
-- **File**: [automator/src/main/java/com/stardust/automator/UiObject.kt](automator/src/main/java/com/stardust/automator/UiObject.kt)
-- **What to port**:
-  - Property getters: `text()`, `id()`, `desc()`, `className()`, `packageName()`
-  - `bounds()` - get element position/size
-  - `click()`, `longClick()` - actions on element
-  - `parent()`, `child(i)`, `childCount()` - tree navigation
-  - `findByText(text)` - find children by text
-- **Skip**: Complex state queries (checked, focused, etc.) - add later if needed
-
-#### 3.2 UiSelector / UiGlobalSelector
-
-- **File**: [automator/src/main/java/com/stardust/automator/UiGlobalSelector.kt](automator/src/main/java/com/stardust/automator/UiGlobalSelector.kt)
-- **What to port**:
-  - `text(text)` - find by exact text
-  - `textContains(str)` - find by partial text
-  - `id(id)` - find by resource id
-  - `className(className)` - find by class name
-  - `findOne()` - find first match
-  - `find()` - find all matches
-- **Skip**: Complex filters (regex, startsWith, etc.) - add as needed
-
-#### 3.3 Filter System
-
-- **Directory**: [automator/src/main/java/com/stardust/automator/filter/](automator/src/main/java/com/stardust/automator/filter/)
-- **What to port**:
-  - `TextFilters` - text matching filters
-  - `IdFilter` - id matching filters
-  - `Selector` - filter composition
-  - Basic filter interface
-- **Skip**: Complex filters (bounds, depth, etc.) - add later
-
-#### 3.4 Search Algorithms
-
-- **Directory**: [automator/src/main/java/com/stardust/automator/search/](automator/src/main/java/com/stardust/automator/search/)
-- **What to port**:
-  - `DFS` (Depth-First Search) - default algorithm
-  - `BFS` (Breadth-First Search) - alternative
-  - `SearchAlgorithm` interface
-- **Note**: Can start with DFS only
-
-#### 3.5 UiSelector Integration
-
-- **File**: [autojs/src/main/java/com/stardust/autojs/core/accessibility/UiSelector.java](autojs/src/main/java/com/stardust/autojs/core/accessibility/UiSelector.java)
-- **What to port**:
-  - `UiSelector` class that wraps UiGlobalSelector
-  - Integration with AccessibilityBridge
-  - `findOne()`, `find()` methods
-- **Skip**: Complex selector methods (until, untilFind, etc.)
-
-### Implementation Steps
-
-1. Port UiObject (property getters and basic actions)
-2. Port filter system (TextFilters, IdFilter, basic Selector)
-3. Port search algorithms (DFS at minimum)
-4. Port UiGlobalSelector (basic find methods)
-5. Port UiSelector wrapper
-6. Integrate into ScriptRuntime
-7. Test: Compiled JavaScript uses selector API to find and click elements
-
-### Key Files to Study
-
-- [automator/src/main/java/com/stardust/automator/UiObject.kt](automator/src/main/java/com/stardust/automator/UiObject.kt) - Element representation
-- [automator/src/main/java/com/stardust/automator/filter/Selector.kt](automator/src/main/java/com/stardust/automator/filter/Selector.kt) - Filter composition
-- [automator/src/main/java/com/stardust/automator/search/DFS.kt](automator/src/main/java/com/stardust/automator/search/DFS.kt) - Search algorithm
-- [autojs/src/main/java/com/stardust/autojs/core/accessibility/UiSelector.java](autojs/src/main/java/com/stardust/autojs/core/accessibility/UiSelector.java) - API wrapper
+Element inspection functionality (UiObject, UiSelector, filter system, search algorithms) will not be ported. Users will use uiauto.dev to inspect elements and obtain coordinates/properties, then use those coordinates with the coordinate-based click automation from Phase 2.
 
 ## Files to Exclude
 
@@ -351,20 +274,15 @@ Find UI elements by text, id, position, or other properties and get their inform
 
    - SimpleActionAutomator → GlobalActionAutomator → GestureDescription
 
-4. **Element Finding**: How UI tree is traversed and filtered
-
-   - UiSelector → Filters → Search Algorithm → UiObject
-
 ## Next Steps After MVP
 
 Once basic features work:
 
-- Add more selector filters (className, desc, etc.)
-- Add element property queries (bounds, visibility, etc.)
 - Add more actions (swipe, scroll, etc.)
 - Add screenshot capability
 - Add file I/O for scripts
 - Add error handling and logging
+- Integrate JavaScript engine (Rhino/V8) to execute compiled JavaScript code
 
 ## Key Implementation Notes
 
@@ -374,16 +292,6 @@ Once basic features work:
 4. **Accessibility Service**: Must be enabled in Android settings before use
 5. **Error Handling**: Accessibility operations can fail silently - need proper error checking
 6. **Node Lifecycle**: AccessibilityNodeInfo objects are recycled - need to copy data immediately
-
-## Phase 1 Completion Summary
-
-✅ **Infrastructure Complete**:
-- Script execution framework
-- Console API
-- Script source handling
-- Service layer
-
-⏳ **Next Step**: Integrate JavaScript engine (Rhino/V8) to actually execute compiled JavaScript code
 
 ## Phase 1 Completion Summary
 
