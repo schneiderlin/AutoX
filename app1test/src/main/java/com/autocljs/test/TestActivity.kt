@@ -1,10 +1,7 @@
 package com.autocljs.test
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.autocljs.ScriptEngineService
 import com.autocljs.accessibility.AccessibilityBridgeImpl
@@ -13,20 +10,35 @@ import com.autocljs.runtime.ScriptRuntime
 import com.autocljs.script.StringScriptSource
 import com.autocljs.util.ScreenMetrics
 import com.autocljs.util.UiHandler
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.*
+import java.io.IOException
 
 /**
- * Test Activity for Phase 1, 2, 3, and 4.
+ * Test Activity for fetching and executing scripts from HTTP endpoint.
  * 
- * Phase 1: Tests Console API (JavaScript execution)
- * Phase 2: Tests Automation (Click) via JavaScript
- * Phase 3: Auto API exposed to JavaScript
- * Phase 4: TestActivity executes JavaScript code
+ * Features:
+ * - Configurable HTTP endpoint URL
+ * - Fetch scripts from server
+ * - Display list of available scripts
+ * - Execute selected scripts
  */
 class TestActivity : AppCompatActivity() {
     
     private lateinit var logView: TextView
+    private lateinit var urlEditText: EditText
+    private lateinit var fetchButton: Button
+    private lateinit var scriptListView: ListView
     private lateinit var runtime: ScriptRuntime
     private lateinit var scriptEngineService: ScriptEngineService
+    private lateinit var okHttpClient: OkHttpClient
+    private lateinit var gson: Gson
+    
+    private var scripts: List<Script> = emptyList()
+    
+    // Data class for script JSON parsing
+    data class Script(val name: String, val code: String)
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,15 +47,44 @@ class TestActivity : AppCompatActivity() {
         runtime = ScriptRuntime(this)
         
         // Initialize script engine service with shared runtime
-        // This ensures the engine uses the same runtime instance where automation is initialized
         scriptEngineService = ScriptEngineService.Builder(this)
             .setRuntime(runtime)
             .build()
         
+        // Initialize HTTP client and JSON parser
+        okHttpClient = OkHttpClient()
+        gson = Gson()
+        
         // Create UI
-        logView = TextView(this).apply {
-            text = "AutoCLJS Test App\n\nTap buttons to test JavaScript execution"
+        createUI()
+    }
+    
+    private fun createUI() {
+        // URL input field
+        urlEditText = EditText(this).apply {
+            hint = "Enter script endpoint URL"
+            setText("http://10.0.2.2:3000/scripts") // Default for Android emulator
             textSize = 14f
+            setPadding(16, 16, 16, 16)
+        }
+        
+        // Fetch button
+        fetchButton = Button(this).apply {
+            text = "Fetch Scripts"
+            setOnClickListener { fetchScripts() }
+        }
+        
+        // Script list view
+        scriptListView = ListView(this).apply {
+            onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                executeScript(scripts[position])
+            }
+        }
+        
+        // Log view
+        logView = TextView(this).apply {
+            text = "AutoCLJS Test App\n\nEnter URL and tap 'Fetch Scripts' to load scripts"
+            textSize = 12f
             setPadding(16, 16, 16, 16)
         }
         
@@ -51,50 +92,121 @@ class TestActivity : AppCompatActivity() {
             addView(logView)
         }
         
-        val testPhase1Btn = Button(this).apply {
-            text = "Test Phase 1 (Console JS)"
-            setOnClickListener { testPhase1() }
-        }
-        
-        val testPhase2Btn = Button(this).apply {
-            text = "Test Phase 2 (Click JS)"
-            setOnClickListener { testPhase2() }
-        }
-        
-        val testPhase2MultipleBtn = Button(this).apply {
-            text = "Test Phase 2 (Multiple Clicks JS)"
-            setOnClickListener { testPhase2Multiple() }
-        }
-        
+        // Main layout
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            addView(urlEditText)
+            addView(fetchButton)
+            addView(scriptListView, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            ))
             addView(scrollView, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
                 1f
             ))
-            addView(testPhase1Btn)
-            addView(testPhase2Btn)
-            addView(testPhase2MultipleBtn)
         }
         
         setContentView(layout)
     }
     
-    private fun testPhase1() {
-        log("=== Testing Phase 1: Console API (JavaScript) ===")
+    private fun fetchScripts() {
+        val urlString = urlEditText.text.toString().trim()
         
-        // Execute JavaScript code that uses console API
-        val jsCode = """
-            console.log("Hello from JavaScript!");
-            console.info("This is an info message");
-            console.warn("This is a warning message");
-            console.error("This is an error message");
-            console.log("Phase 1 test complete!");
-        """.trimIndent()
+        if (urlString.isEmpty()) {
+            log("ERROR: Please enter a URL")
+            return
+        }
         
+        log("Fetching scripts from: $urlString")
+        fetchButton.isEnabled = false
+        fetchButton.text = "Loading..."
+        
+        val request = Request.Builder()
+            .url(urlString)
+            .build()
+        
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    log("ERROR: Failed to fetch scripts: ${e.message}")
+                    fetchButton.isEnabled = true
+                    fetchButton.text = "Fetch Scripts"
+                }
+            }
+            
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    runOnUiThread {
+                        log("ERROR: HTTP ${response.code}: ${response.message}")
+                        fetchButton.isEnabled = true
+                        fetchButton.text = "Fetch Scripts"
+                    }
+                    return
+                }
+                
+                try {
+                    val responseBody = response.body?.string()
+                    if (responseBody == null) {
+                        runOnUiThread {
+                            log("ERROR: Empty response from server")
+                            fetchButton.isEnabled = true
+                            fetchButton.text = "Fetch Scripts"
+                        }
+                        return
+                    }
+                    
+                    // Parse JSON array
+                    val listType = object : TypeToken<List<Script>>() {}.type
+                    val fetchedScripts: List<Script> = gson.fromJson(responseBody, listType)
+                    
+                    runOnUiThread {
+                        scripts = fetchedScripts
+                        updateScriptList()
+                        log("Successfully fetched ${scripts.size} script(s)")
+                        fetchButton.isEnabled = true
+                        fetchButton.text = "Fetch Scripts"
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        log("ERROR: Failed to parse JSON: ${e.message}")
+                        e.printStackTrace()
+                        fetchButton.isEnabled = true
+                        fetchButton.text = "Fetch Scripts"
+                    }
+                }
+            }
+        })
+    }
+    
+    private fun updateScriptList() {
+        val scriptNames = scripts.map { it.name }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, scriptNames)
+        scriptListView.adapter = adapter
+    }
+    
+    private fun executeScript(script: Script) {
+        log("=== Executing Script: ${script.name} ===")
+        
+        // Check if script uses automation (contains 'auto.')
+        val usesAutomation = script.code.contains("auto.")
+        
+        if (usesAutomation) {
+            // Run on background thread for automation scripts
+            Thread {
+                executeScriptWithAutomation(script)
+            }.start()
+        } else {
+            // Execute simple scripts on current thread
+            executeScriptSimple(script)
+        }
+    }
+    
+    private fun executeScriptSimple(script: Script) {
         try {
-            val source = StringScriptSource("test_phase1.js", jsCode)
+            val source = StringScriptSource("${script.name}.js", script.code)
             val execution = scriptEngineService.execute(source)
             
             val exception = execution.exception
@@ -102,128 +214,56 @@ class TestActivity : AppCompatActivity() {
                 log("ERROR: ${exception.message}")
                 exception.printStackTrace()
             } else {
-                log("JavaScript executed successfully!")
+                log("Script executed successfully!")
                 log("Check logcat for console output (tag: 'AutoCLJS')")
             }
         } catch (e: Exception) {
-            log("ERROR executing JavaScript: ${e.message}")
+            log("ERROR executing script: ${e.message}")
             e.printStackTrace()
         }
     }
     
-    private fun testPhase2() {
-        log("=== Testing Phase 2: Automation (Single Click via JavaScript) ===")
-        
-        // Run on background thread to avoid blocking UI
-        Thread {
-            try {
-                // Initialize screen metrics
-                ScreenMetrics.initIfNeeded(this)
-                log("Screen metrics initialized")
-                
-                // Create accessibility bridge
-                val config = AccessibilityConfig()
-                val uiHandler = UiHandler(this)
-                val bridge = AccessibilityBridgeImpl(this, config, uiHandler)
-                log("Accessibility bridge created")
-                
-                // Ensure service is enabled
-                log("Checking accessibility service...")
-                bridge.ensureServiceEnabled()
-                log("Accessibility service is enabled ✓")
-                
-                // Initialize automation (required before JavaScript can use auto API)
-                runtime.initAutomation(bridge)
-                log("Automation initialized")
-                
-                // Execute JavaScript code that uses auto.click()
-                val jsCode = """
-                    console.log("Testing automation from JavaScript...");
-                    console.log("Clicking at coordinates (500, 500)...");
-                    var result = auto.click(500, 500);
-                    console.log("Click result: " + result);
-                    if (result) {
-                        console.log("SUCCESS ✓");
-                    } else {
-                        console.log("FAILED ✗");
-                    }
-                """.trimIndent()
-                
-                val source = StringScriptSource("test_phase2.js", jsCode)
-                val execution = scriptEngineService.execute(source)
-                
-                val exception = execution.exception
-                if (exception != null) {
-                    log("ERROR: ${exception.message}")
-                    exception.printStackTrace()
-                } else {
-                    log("JavaScript executed successfully!")
-                    log("Check logcat for console output")
-                }
-            } catch (e: IllegalStateException) {
-                log("ERROR: ${e.message}")
-                log("Please enable the accessibility service in Android Settings:")
-                log("Settings → Accessibility → AutoCLJS automation service")
-            } catch (e: Exception) {
-                log("ERROR: ${e.message}")
-                e.printStackTrace()
+    private fun executeScriptWithAutomation(script: Script) {
+        try {
+            // Initialize screen metrics
+            ScreenMetrics.initIfNeeded(this@TestActivity)
+            log("Screen metrics initialized")
+            
+            // Create accessibility bridge
+            val config = AccessibilityConfig()
+            val uiHandler = UiHandler(this@TestActivity)
+            val bridge = AccessibilityBridgeImpl(this@TestActivity, config, uiHandler)
+            log("Accessibility bridge created")
+            
+            // Ensure service is enabled
+            log("Checking accessibility service...")
+            bridge.ensureServiceEnabled()
+            log("Accessibility service is enabled ✓")
+            
+            // Initialize automation (required before JavaScript can use auto API)
+            runtime.initAutomation(bridge)
+            log("Automation initialized")
+            
+            // Execute JavaScript code
+            val source = StringScriptSource("${script.name}.js", script.code)
+            val execution = scriptEngineService.execute(source)
+            
+            val exception = execution.exception
+            if (exception != null) {
+                log("ERROR: ${exception.message}")
+                exception.printStackTrace()
+            } else {
+                log("Script executed successfully!")
+                log("Check logcat for console output")
             }
-        }.start()
-    }
-    
-    private fun testPhase2Multiple() {
-        log("=== Testing Phase 2: Automation (Multiple Clicks via JavaScript) ===")
-        
-        // Run on background thread to avoid blocking UI
-        Thread {
-            try {
-                ScreenMetrics.initIfNeeded(this)
-                val config = AccessibilityConfig()
-                val uiHandler = UiHandler(this)
-                val bridge = AccessibilityBridgeImpl(this, config, uiHandler)
-                bridge.ensureServiceEnabled()
-                runtime.initAutomation(bridge)
-                
-                // Execute JavaScript code that performs multiple clicks
-                val jsCode = """
-                    console.log("Performing multiple clicks from JavaScript...");
-                    
-                    console.log("Click 1 at (100, 100)...");
-                    var result1 = auto.click(100, 100);
-                    console.log("Click 1 result: " + result1);
-                    
-                    // Note: JavaScript doesn't have Thread.sleep, but we can use a simple delay
-                    // For now, just log the clicks sequentially
-                    console.log("Click 2 at (200, 200)...");
-                    var result2 = auto.click(200, 200);
-                    console.log("Click 2 result: " + result2);
-                    
-                    console.log("Long click at (300, 300)...");
-                    var result3 = auto.longClick(300, 300);
-                    console.log("Long click result: " + result3);
-                    
-                    console.log("Multiple clicks test complete ✓");
-                """.trimIndent()
-                
-                val source = StringScriptSource("test_phase2_multiple.js", jsCode)
-                val execution = scriptEngineService.execute(source)
-                
-                val exception = execution.exception
-                if (exception != null) {
-                    log("ERROR: ${exception.message}")
-                    exception.printStackTrace()
-                } else {
-                    log("JavaScript executed successfully!")
-                    log("Check logcat for console output")
-                }
-            } catch (e: IllegalStateException) {
-                log("ERROR: ${e.message}")
-                log("Please enable the accessibility service in Android Settings")
-            } catch (e: Exception) {
-                log("ERROR: ${e.message}")
-                e.printStackTrace()
-            }
-        }.start()
+        } catch (e: IllegalStateException) {
+            log("ERROR: ${e.message}")
+            log("Please enable the accessibility service in Android Settings:")
+            log("Settings → Accessibility → AutoCLJS automation service")
+        } catch (e: Exception) {
+            log("ERROR: ${e.message}")
+            e.printStackTrace()
+        }
     }
     
     private fun log(message: String) {
@@ -233,4 +273,3 @@ class TestActivity : AppCompatActivity() {
         android.util.Log.d("TestActivity", message)
     }
 }
-

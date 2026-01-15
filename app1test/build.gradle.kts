@@ -38,5 +38,11 @@ dependencies {
     implementation(project(":app1"))
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}")
+    
+    // HTTP client for fetching scripts
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // JSON parsing
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
