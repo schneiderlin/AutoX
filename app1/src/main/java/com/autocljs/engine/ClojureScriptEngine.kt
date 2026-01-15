@@ -3,6 +3,7 @@ package com.autocljs.engine
 import android.content.Context
 import android.util.Log
 import com.autocljs.runtime.ScriptRuntime
+import com.autocljs.runtime.api.JsAuto
 import com.autocljs.runtime.api.JsConsole
 import com.autocljs.script.ScriptSource
 import com.autocljs.script.StringScriptSource
@@ -18,6 +19,8 @@ import org.mozilla.javascript.ScriptableObject
  * ClojureScript is compiled to JavaScript before reaching this library.
  * 
  * Phase 1: Basic Rhino integration to execute JavaScript code.
+ * Phase 2: Console API exposed (console.log, console.error, etc.)
+ * Phase 3: Auto API exposed (auto.click, auto.longClick, etc.)
  */
 class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractScriptEngine<ScriptSource>() {
     
@@ -69,6 +72,9 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
             // Expose Console API to JavaScript
             exposeConsole()
             
+            // Expose Auto API to JavaScript
+            exposeAuto()
+            
             Log.d(LOG_TAG, "Rhino context and scope initialized")
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to initialize Rhino", e)
@@ -99,6 +105,36 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to expose console API", e)
             throw RuntimeException("Failed to expose console API", e)
+        }
+    }
+    
+    /**
+     * Expose Auto API to JavaScript.
+     * Makes auto.click(), auto.longClick(), etc. available in JavaScript code.
+     * 
+     * Note: The automator must be initialized via runtime.initAutomation() before
+     * JavaScript code can use the auto API. This is typically done in TestActivity
+     * or similar before executing scripts.
+     */
+    private fun exposeAuto() {
+        val ctx = rhinoContext ?: throw IllegalStateException("Context not initialized")
+        val scp = scope ?: throw IllegalStateException("Scope not initialized")
+        val rt = runtime ?: throw IllegalStateException("Runtime not initialized")
+        
+        try {
+            // Create JavaScript auto wrapper
+            val jsAuto = JsAuto(rt)
+            
+            // Set parent scope for the auto object
+            jsAuto.parentScope = scp
+            
+            // Expose auto to JavaScript global scope
+            ScriptableObject.putProperty(scp, "auto", jsAuto)
+            
+            Log.d(LOG_TAG, "Auto API exposed to JavaScript")
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Failed to expose auto API", e)
+            throw RuntimeException("Failed to expose auto API", e)
         }
     }
     
