@@ -39,6 +39,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}")
     
+    // Coroutines for async operations
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    
     // For ClojureScript integration (will be added when we integrate ClojureScript)
     // For now, we'll port the core interfaces and structures
     
