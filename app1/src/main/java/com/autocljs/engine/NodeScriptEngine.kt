@@ -22,12 +22,9 @@ import com.caoccao.javet.values.reference.IV8Module
 import com.caoccao.javet.values.reference.V8Module
 import com.caoccao.javet.values.reference.V8ValueError
 import com.caoccao.javet.values.reference.V8ValuePromise
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.locks.ReentrantLock
 
 /**
@@ -48,7 +45,8 @@ class NodeScriptEngine(
     private val tags = mutableMapOf<String, Any?>()
     private val v8Locker = ReentrantLock()
     private val moduleDirectory = getModuleDirectory(context)
-    private val resultListener = PromiseListener()
+    @Volatile
+    private var currentResultListener: PromiseListener? = null
     private var console: NodeConsole? = null
     private var auto: NodeAuto? = null
     private val converter = JavetProxyConverter().apply {
@@ -56,7 +54,9 @@ class NodeScriptEngine(
         config.setProxySetEnabled(true)
         config.setProxyListEnabled(true)
     }
-    val scope = CoroutineScope(Dispatchers.Default)
+    private val executionCounter = AtomicLong(0)
+    @Volatile
+    private var isExecuting = false
     private val moduleResolver = SimpleNodeModuleResolver(runtime, context, moduleDirectory)
     
     companion object {
@@ -83,7 +83,6 @@ class NodeScriptEngine(
             
             runtime.converter = converter
             runtime.allowEval(true)
-            runtime.isStopping = true
             
             // Set up module resolver
             runtime.v8ModuleResolver = moduleResolver
@@ -154,15 +153,19 @@ class NodeScriptEngine(
         
         Log.d(TAG, "Executing ES module: ${scriptSource.name}")
         
+        // Create a fresh PromiseListener for each execution
+        // CompletableDeferred can only be completed once, so we need a new instance each time
+        val resultListener = PromiseListener()
+        currentResultListener = resultListener
+        isExecuting = true
+        
+        // Use unique file name to avoid ES module caching issues
+        // ES modules can only be evaluated once, so we need unique paths each time
+        val execId = executionCounter.incrementAndGet()
+        val baseName = scriptSource.name.replace(Regex("[^a-zA-Z0-9_-]"), "_")
+        val tempFile = File(context.cacheDir, "temp_${baseName}_$execId.mjs")
+        
         try {
-            // Create a temporary file for the script
-            // Use .mjs extension if not already present
-            val fileName = if (scriptSource.name.endsWith(".mjs")) {
-                scriptSource.name
-            } else {
-                "${scriptSource.name}.mjs"
-            }
-            val tempFile = File(context.cacheDir, "temp_$fileName")
             tempFile.writeText(scriptSource.script)
             
             initializeModule(tempFile).use {
@@ -174,7 +177,7 @@ class NodeScriptEngine(
             }
             
             // Wait for async operations
-            while (scope.isActive) {
+            while (isExecuting) {
                 if (runtime.await(V8AwaitMode.RunNoWait)) {
                     Thread.sleep(1)
                     continue
@@ -182,9 +185,6 @@ class NodeScriptEngine(
                     break
                 }
             }
-            
-            // Clean up temp file
-            tempFile.delete()
             
             if (resultListener.isFulfilledCalled) {
                 return@runBlocking resultListener.await()
@@ -195,6 +195,13 @@ class NodeScriptEngine(
             }
         } catch (e: Throwable) {
             exceptionHandling(e)
+        } finally {
+            isExecuting = false
+            currentResultListener = null
+            
+            // Clean up temp file and module cache to allow re-execution
+            moduleResolver.removeCacheModule(tempFile.path)
+            tempFile.delete()
         }
     }
     
@@ -275,21 +282,17 @@ class NodeScriptEngine(
     
     override fun forceStop() {
         Log.d(TAG, "forceStop() called")
-        resultListener.cancel()
+        isExecuting = false
+        currentResultListener?.cancel()
         if (runtime.isInUse) {
             runtime.terminateExecution()
-        }
-        if (scope.isActive) {
-            scope.cancel("force stop")
         }
     }
     
     override fun destroy() {
         super.destroy()
         
-        if (scope.isActive) {
-            scope.cancel()
-        }
+        isExecuting = false
         
         // Clean up APIs
         runtime.globalObject.use { global ->

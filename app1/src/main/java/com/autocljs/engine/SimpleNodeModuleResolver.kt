@@ -159,6 +159,14 @@ class SimpleNodeModuleResolver(
     }
     
     /**
+     * Remove a module from the cache by resource name.
+     * This is needed to allow re-execution of scripts with the same name.
+     */
+    fun removeCacheModule(resourceName: String) {
+        esModuleCache.remove(resourceName)
+    }
+    
+    /**
      * Create a require function for CommonJS modules (simplified).
      */
     val require: com.caoccao.javet.values.reference.V8ValueFunction by lazy {
