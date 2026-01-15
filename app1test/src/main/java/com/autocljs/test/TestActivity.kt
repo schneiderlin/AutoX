@@ -6,22 +6,27 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.autocljs.ScriptEngineService
 import com.autocljs.accessibility.AccessibilityBridgeImpl
 import com.autocljs.accessibility.AccessibilityConfig
 import com.autocljs.runtime.ScriptRuntime
+import com.autocljs.script.StringScriptSource
 import com.autocljs.util.ScreenMetrics
 import com.autocljs.util.UiHandler
 
 /**
- * Test Activity for Phase 1 and Phase 2.
+ * Test Activity for Phase 1, 2, 3, and 4.
  * 
- * Phase 1: Tests Console API
- * Phase 2: Tests Automation (Click)
+ * Phase 1: Tests Console API (JavaScript execution)
+ * Phase 2: Tests Automation (Click) via JavaScript
+ * Phase 3: Auto API exposed to JavaScript
+ * Phase 4: TestActivity executes JavaScript code
  */
 class TestActivity : AppCompatActivity() {
     
     private lateinit var logView: TextView
     private lateinit var runtime: ScriptRuntime
+    private lateinit var scriptEngineService: ScriptEngineService
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +34,15 @@ class TestActivity : AppCompatActivity() {
         // Initialize runtime
         runtime = ScriptRuntime(this)
         
+        // Initialize script engine service with shared runtime
+        // This ensures the engine uses the same runtime instance where automation is initialized
+        scriptEngineService = ScriptEngineService.Builder(this)
+            .setRuntime(runtime)
+            .build()
+        
         // Create UI
         logView = TextView(this).apply {
-            text = "AutoCLJS Test App\n\nTap buttons to test Phase 1 & 2"
+            text = "AutoCLJS Test App\n\nTap buttons to test JavaScript execution"
             textSize = 14f
             setPadding(16, 16, 16, 16)
         }
@@ -41,17 +52,17 @@ class TestActivity : AppCompatActivity() {
         }
         
         val testPhase1Btn = Button(this).apply {
-            text = "Test Phase 1 (Console)"
+            text = "Test Phase 1 (Console JS)"
             setOnClickListener { testPhase1() }
         }
         
         val testPhase2Btn = Button(this).apply {
-            text = "Test Phase 2 (Click at 500,500)"
+            text = "Test Phase 2 (Click JS)"
             setOnClickListener { testPhase2() }
         }
         
         val testPhase2MultipleBtn = Button(this).apply {
-            text = "Test Phase 2 (Multiple Clicks)"
+            text = "Test Phase 2 (Multiple Clicks JS)"
             setOnClickListener { testPhase2Multiple() }
         }
         
@@ -71,17 +82,37 @@ class TestActivity : AppCompatActivity() {
     }
     
     private fun testPhase1() {
-        log("=== Testing Phase 1: Console API ===")
-        runtime.console.log("Hello from Phase 1!")
-        runtime.console.info("This is an info message")
-        runtime.console.warn("This is a warning message")
-        runtime.console.error("This is an error message")
-        log("Phase 1 test complete - check logcat for console output")
-        log("Look for tag: 'AutoCLJS'")
+        log("=== Testing Phase 1: Console API (JavaScript) ===")
+        
+        // Execute JavaScript code that uses console API
+        val jsCode = """
+            console.log("Hello from JavaScript!");
+            console.info("This is an info message");
+            console.warn("This is a warning message");
+            console.error("This is an error message");
+            console.log("Phase 1 test complete!");
+        """.trimIndent()
+        
+        try {
+            val source = StringScriptSource("test_phase1.js", jsCode)
+            val execution = scriptEngineService.execute(source)
+            
+            val exception = execution.exception
+            if (exception != null) {
+                log("ERROR: ${exception.message}")
+                exception.printStackTrace()
+            } else {
+                log("JavaScript executed successfully!")
+                log("Check logcat for console output (tag: 'AutoCLJS')")
+            }
+        } catch (e: Exception) {
+            log("ERROR executing JavaScript: ${e.message}")
+            e.printStackTrace()
+        }
     }
     
     private fun testPhase2() {
-        log("=== Testing Phase 2: Automation (Single Click) ===")
+        log("=== Testing Phase 2: Automation (Single Click via JavaScript) ===")
         
         // Run on background thread to avoid blocking UI
         Thread {
@@ -101,18 +132,33 @@ class TestActivity : AppCompatActivity() {
                 bridge.ensureServiceEnabled()
                 log("Accessibility service is enabled ✓")
                 
-                // Initialize automation
+                // Initialize automation (required before JavaScript can use auto API)
                 runtime.initAutomation(bridge)
                 log("Automation initialized")
                 
-                val automator = runtime.getAutomator()
-                if (automator != null) {
-                    log("Automator ready")
-                    log("Clicking at coordinates (500, 500)...")
-                    val success = automator.click(500, 500)
-                    log("Click result: ${if (success) "SUCCESS ✓" else "FAILED ✗"}")
+                // Execute JavaScript code that uses auto.click()
+                val jsCode = """
+                    console.log("Testing automation from JavaScript...");
+                    console.log("Clicking at coordinates (500, 500)...");
+                    var result = auto.click(500, 500);
+                    console.log("Click result: " + result);
+                    if (result) {
+                        console.log("SUCCESS ✓");
+                    } else {
+                        console.log("FAILED ✗");
+                    }
+                """.trimIndent()
+                
+                val source = StringScriptSource("test_phase2.js", jsCode)
+                val execution = scriptEngineService.execute(source)
+                
+                val exception = execution.exception
+                if (exception != null) {
+                    log("ERROR: ${exception.message}")
+                    exception.printStackTrace()
                 } else {
-                    log("ERROR: Automator is null")
+                    log("JavaScript executed successfully!")
+                    log("Check logcat for console output")
                 }
             } catch (e: IllegalStateException) {
                 log("ERROR: ${e.message}")
@@ -126,7 +172,7 @@ class TestActivity : AppCompatActivity() {
     }
     
     private fun testPhase2Multiple() {
-        log("=== Testing Phase 2: Automation (Multiple Clicks) ===")
+        log("=== Testing Phase 2: Automation (Multiple Clicks via JavaScript) ===")
         
         // Run on background thread to avoid blocking UI
         Thread {
@@ -138,24 +184,37 @@ class TestActivity : AppCompatActivity() {
                 bridge.ensureServiceEnabled()
                 runtime.initAutomation(bridge)
                 
-                val automator = runtime.getAutomator()
-                if (automator != null) {
-                    log("Performing multiple clicks...")
-                    automator.click(100, 100)
-                    Thread.sleep(500)
-                    log("Click 1 at (100, 100) completed")
+                // Execute JavaScript code that performs multiple clicks
+                val jsCode = """
+                    console.log("Performing multiple clicks from JavaScript...");
                     
-                    automator.click(200, 200)
-                    Thread.sleep(500)
-                    log("Click 2 at (200, 200) completed")
+                    console.log("Click 1 at (100, 100)...");
+                    var result1 = auto.click(100, 100);
+                    console.log("Click 1 result: " + result1);
                     
-                    automator.longClick(300, 300)
-                    Thread.sleep(500)
-                    log("Long click at (300, 300) completed")
+                    // Note: JavaScript doesn't have Thread.sleep, but we can use a simple delay
+                    // For now, just log the clicks sequentially
+                    console.log("Click 2 at (200, 200)...");
+                    var result2 = auto.click(200, 200);
+                    console.log("Click 2 result: " + result2);
                     
-                    log("Multiple clicks test complete ✓")
+                    console.log("Long click at (300, 300)...");
+                    var result3 = auto.longClick(300, 300);
+                    console.log("Long click result: " + result3);
+                    
+                    console.log("Multiple clicks test complete ✓");
+                """.trimIndent()
+                
+                val source = StringScriptSource("test_phase2_multiple.js", jsCode)
+                val execution = scriptEngineService.execute(source)
+                
+                val exception = execution.exception
+                if (exception != null) {
+                    log("ERROR: ${exception.message}")
+                    exception.printStackTrace()
                 } else {
-                    log("ERROR: Automator is null")
+                    log("JavaScript executed successfully!")
+                    log("Check logcat for console output")
                 }
             } catch (e: IllegalStateException) {
                 log("ERROR: ${e.message}")

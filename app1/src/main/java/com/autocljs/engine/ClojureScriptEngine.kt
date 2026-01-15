@@ -7,7 +7,7 @@ import com.autocljs.runtime.api.JsAuto
 import com.autocljs.runtime.api.JsConsole
 import com.autocljs.script.ScriptSource
 import com.autocljs.script.StringScriptSource
-import org.mozilla.javascript.Context
+import org.mozilla.javascript.Context as RhinoContext
 import org.mozilla.javascript.ImporterTopLevel
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
@@ -22,24 +22,28 @@ import org.mozilla.javascript.ScriptableObject
  * Phase 2: Console API exposed (console.log, console.error, etc.)
  * Phase 3: Auto API exposed (auto.click, auto.longClick, etc.)
  */
-class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractScriptEngine<ScriptSource>() {
+class ClojureScriptEngine(
+    private val context: Context,
+    private val sharedRuntime: ScriptRuntime? = null
+) : ScriptEngine.AbstractScriptEngine<ScriptSource>() {
     
     private var runtime: ScriptRuntime? = null
     private var isInitialized = false
     
-    // Rhino context and scope
-    private var rhinoContext: Context? = null
+    // Rhino scope (can be shared across threads)
     private var scope: Scriptable? = null
     
     companion object {
         private const val LOG_TAG = "ClojureScriptEngine"
     }
     
+    @Synchronized
     override fun init() {
         if (!isInitialized) {
-            runtime = ScriptRuntime(context)
+            // Use shared runtime if provided, otherwise create a new one
+            runtime = sharedRuntime ?: ScriptRuntime(context)
             
-            // Initialize Rhino context and scope
+            // Initialize Rhino scope
             initializeRhino()
             
             isInitialized = true
@@ -49,36 +53,34 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
     
     /**
      * Initialize Rhino JavaScript engine.
-     * Creates a Context and global scope for JavaScript execution.
+     * Creates a global scope for JavaScript execution.
+     * Note: Rhino Context is thread-local, so we enter/exit on each execution.
      */
     private fun initializeRhino() {
+        // Enter context temporarily for initialization
+        val ctx = RhinoContext.enter()
         try {
-            // Enter Rhino context
-            rhinoContext = Context.enter()
-            
             // Configure context
-            rhinoContext?.let { ctx ->
-                ctx.optimizationLevel = -1  // Interpreted mode (better compatibility)
-                ctx.languageVersion = Context.VERSION_ES6
-            }
+            ctx.optimizationLevel = -1  // Interpreted mode (better compatibility)
+            ctx.languageVersion = RhinoContext.VERSION_ES6
             
             // Create global scope
             scope = ImporterTopLevel().apply {
-                rhinoContext?.let { ctx ->
-                    initStandardObjects(ctx, false)
-                }
+                initStandardObjects(ctx, false)
             }
             
             // Expose Console API to JavaScript
-            exposeConsole()
+            exposeConsole(ctx)
             
             // Expose Auto API to JavaScript
-            exposeAuto()
+            exposeAuto(ctx)
             
-            Log.d(LOG_TAG, "Rhino context and scope initialized")
+            Log.d(LOG_TAG, "Rhino scope initialized")
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to initialize Rhino", e)
             throw RuntimeException("Failed to initialize Rhino JavaScript engine", e)
+        } finally {
+            RhinoContext.exit()
         }
     }
     
@@ -86,8 +88,7 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
      * Expose Console API to JavaScript.
      * Makes console.log(), console.error(), etc. available in JavaScript code.
      */
-    private fun exposeConsole() {
-        val ctx = rhinoContext ?: throw IllegalStateException("Context not initialized")
+    private fun exposeConsole(ctx: RhinoContext) {
         val scp = scope ?: throw IllegalStateException("Scope not initialized")
         val rt = runtime ?: throw IllegalStateException("Runtime not initialized")
         
@@ -116,8 +117,7 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
      * JavaScript code can use the auto API. This is typically done in TestActivity
      * or similar before executing scripts.
      */
-    private fun exposeAuto() {
-        val ctx = rhinoContext ?: throw IllegalStateException("Context not initialized")
+    private fun exposeAuto(ctx: RhinoContext) {
         val scp = scope ?: throw IllegalStateException("Scope not initialized")
         val rt = runtime ?: throw IllegalStateException("Runtime not initialized")
         
@@ -139,15 +139,22 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
     }
     
     override fun put(name: String, value: Any?) {
-        val ctx = rhinoContext ?: throw IllegalStateException("Engine not initialized. Call init() first.")
+        if (!isInitialized) {
+            throw IllegalStateException("Engine not initialized. Call init() first.")
+        }
         val scp = scope ?: throw IllegalStateException("Scope not initialized.")
         
+        val ctx = RhinoContext.enter()
         try {
-            ScriptableObject.putProperty(scp, name, Context.javaToJS(value, scp))
+            ctx.optimizationLevel = -1
+            ctx.languageVersion = RhinoContext.VERSION_ES6
+            ScriptableObject.putProperty(scp, name, RhinoContext.javaToJS(value, scp))
             Log.d(LOG_TAG, "put($name, $value)")
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to put property: $name", e)
             throw RuntimeException("Failed to put property: $name", e)
+        } finally {
+            RhinoContext.exit()
         }
     }
     
@@ -166,15 +173,23 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
     /**
      * Execute JavaScript code using Rhino.
      * 
+     * Note: Rhino Context is thread-local, so we enter/exit on each execution
+     * to support multi-threaded script execution.
+     * 
      * @param script JavaScript code to execute
      * @param sourceName Name of the script source (for error reporting)
      * @return Result of script execution, or null
      */
     private fun executeJavaScript(script: String, sourceName: String): Any? {
-        val ctx = rhinoContext ?: throw IllegalStateException("Engine not initialized. Call init() first.")
         val scp = scope ?: throw IllegalStateException("Scope not initialized.")
         
+        // Enter Rhino context for this thread
+        val ctx = RhinoContext.enter()
         try {
+            // Configure context (same settings as initialization)
+            ctx.optimizationLevel = -1  // Interpreted mode (better compatibility)
+            ctx.languageVersion = RhinoContext.VERSION_ES6
+            
             Log.d(LOG_TAG, "Executing JavaScript: $sourceName")
             Log.d(LOG_TAG, "Script length: ${script.length} characters")
             
@@ -192,6 +207,9 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Error executing script: $sourceName", e)
             throw RuntimeException("Error executing script: $sourceName", e)
+        } finally {
+            // Always exit the context when done
+            RhinoContext.exit()
         }
     }
     
@@ -205,16 +223,6 @@ class ClojureScriptEngine(private val context: Context) : ScriptEngine.AbstractS
     override fun destroy() {
         super.destroy()
         
-        // Exit Rhino context
-        try {
-            rhinoContext?.let {
-                Context.exit()
-            }
-        } catch (e: Exception) {
-            Log.w(LOG_TAG, "Error exiting Rhino context", e)
-        }
-        
-        rhinoContext = null
         scope = null
         runtime = null
         isInitialized = false

@@ -2,8 +2,8 @@ package com.autocljs.runtime.api
 
 import com.autocljs.automation.SimpleActionAutomator
 import com.autocljs.runtime.ScriptRuntime
-import org.mozilla.javascript.BaseFunction
 import org.mozilla.javascript.Context
+import org.mozilla.javascript.Function
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
 
@@ -32,101 +32,103 @@ class JsAuto(val runtime: ScriptRuntime) : ScriptableObject() {
             ?: throw IllegalStateException("Automator not initialized. Call initAutomation() first.")
     }
     
-    /**
-     * Convert JavaScript number to Int.
-     * Handles Double, Int, and other numeric types.
-     */
-    private fun toInt(value: Any?): Int {
-        return when (value) {
-            is Number -> value.toInt()
-            is String -> value.toIntOrNull() ?: throw IllegalArgumentException("Cannot convert '$value' to integer")
-            null -> throw IllegalArgumentException("Expected number, got null")
-            else -> throw IllegalArgumentException("Expected number, got ${value::class.simpleName}")
-        }
-    }
-    
-    /**
-     * Called by Rhino when JavaScript code calls auto.click(x, y)
-     */
-    @JvmStatic
-    fun click(context: Context, thisObj: Scriptable, args: Array<out Any?>?, funObj: BaseFunction): Any? {
-        val jsAuto = thisObj as? JsAuto
-            ?: throw IllegalStateException("Invalid thisObj for auto.click")
-        
-        if (args == null || args.size < 2) {
-            throw IllegalArgumentException("auto.click() requires 2 arguments: x, y")
-        }
-        
-        val x = jsAuto.toInt(args[0])
-        val y = jsAuto.toInt(args[1])
-        
-        val result = jsAuto.getAutomator().click(x, y)
-        return result
-    }
-    
-    /**
-     * Called by Rhino when JavaScript code calls auto.longClick(x, y)
-     */
-    @JvmStatic
-    fun longClick(context: Context, thisObj: Scriptable, args: Array<out Any?>?, funObj: BaseFunction): Any? {
-        val jsAuto = thisObj as? JsAuto
-            ?: throw IllegalStateException("Invalid thisObj for auto.longClick")
-        
-        if (args == null || args.size < 2) {
-            throw IllegalArgumentException("auto.longClick() requires 2 arguments: x, y")
-        }
-        
-        val x = jsAuto.toInt(args[0])
-        val y = jsAuto.toInt(args[1])
-        
-        val result = jsAuto.getAutomator().longClick(x, y)
-        return result
-    }
-    
-    /**
-     * Called by Rhino when JavaScript code calls auto.press(x, y, delay)
-     */
-    @JvmStatic
-    fun press(context: Context, thisObj: Scriptable, args: Array<out Any?>?, funObj: BaseFunction): Any? {
-        val jsAuto = thisObj as? JsAuto
-            ?: throw IllegalStateException("Invalid thisObj for auto.press")
-        
-        if (args == null || args.size < 3) {
-            throw IllegalArgumentException("auto.press() requires 3 arguments: x, y, delay")
-        }
-        
-        val x = jsAuto.toInt(args[0])
-        val y = jsAuto.toInt(args[1])
-        val delay = jsAuto.toInt(args[2])
-        
-        val result = jsAuto.getAutomator().press(x, y, delay)
-        return result
-    }
-    
-    /**
-     * Called by Rhino when JavaScript code calls auto.swipe(x1, y1, x2, y2, delay)
-     */
-    @JvmStatic
-    fun swipe(context: Context, thisObj: Scriptable, args: Array<out Any?>?, funObj: BaseFunction): Any? {
-        val jsAuto = thisObj as? JsAuto
-            ?: throw IllegalStateException("Invalid thisObj for auto.swipe")
-        
-        if (args == null || args.size < 5) {
-            throw IllegalArgumentException("auto.swipe() requires 5 arguments: x1, y1, x2, y2, delay")
-        }
-        
-        val x1 = jsAuto.toInt(args[0])
-        val y1 = jsAuto.toInt(args[1])
-        val x2 = jsAuto.toInt(args[2])
-        val y2 = jsAuto.toInt(args[3])
-        val delay = jsAuto.toInt(args[4])
-        
-        val result = jsAuto.getAutomator().swipe(x1, y1, x2, y2, delay)
-        return result
-    }
-    
     override fun getClassName(): String {
         return "Auto"
+    }
+    
+    companion object {
+        /**
+         * Convert JavaScript number to Int.
+         * Handles Double, Int, and other numeric types.
+         */
+        private fun toInt(value: Any?): Int {
+            return when (value) {
+                is Number -> value.toInt()
+                is String -> value.toIntOrNull() ?: throw IllegalArgumentException("Cannot convert '$value' to integer")
+                null -> throw IllegalArgumentException("Expected number, got null")
+                else -> throw IllegalArgumentException("Expected number, got ${value::class.simpleName}")
+            }
+        }
+        
+        /**
+         * Called by Rhino when JavaScript code calls auto.click(x, y)
+         */
+        @JvmStatic
+        fun click(context: Context, thisObj: Scriptable, args: Array<Any?>, funObj: Function): Any? {
+            val jsAuto = thisObj as? JsAuto
+                ?: throw IllegalStateException("Invalid thisObj for auto.click")
+            
+            if (args.size < 2) {
+                throw IllegalArgumentException("auto.click() requires 2 arguments: x, y")
+            }
+            
+            val x = toInt(args[0])
+            val y = toInt(args[1])
+            
+            val result = jsAuto.getAutomator().click(x, y)
+            return result
+        }
+        
+        /**
+         * Called by Rhino when JavaScript code calls auto.longClick(x, y)
+         */
+        @JvmStatic
+        fun longClick(context: Context, thisObj: Scriptable, args: Array<Any?>, funObj: Function): Any? {
+            val jsAuto = thisObj as? JsAuto
+                ?: throw IllegalStateException("Invalid thisObj for auto.longClick")
+            
+            if (args.size < 2) {
+                throw IllegalArgumentException("auto.longClick() requires 2 arguments: x, y")
+            }
+            
+            val x = toInt(args[0])
+            val y = toInt(args[1])
+            
+            val result = jsAuto.getAutomator().longClick(x, y)
+            return result
+        }
+        
+        /**
+         * Called by Rhino when JavaScript code calls auto.press(x, y, delay)
+         */
+        @JvmStatic
+        fun press(context: Context, thisObj: Scriptable, args: Array<Any?>, funObj: Function): Any? {
+            val jsAuto = thisObj as? JsAuto
+                ?: throw IllegalStateException("Invalid thisObj for auto.press")
+            
+            if (args.size < 3) {
+                throw IllegalArgumentException("auto.press() requires 3 arguments: x, y, delay")
+            }
+            
+            val x = toInt(args[0])
+            val y = toInt(args[1])
+            val delay = toInt(args[2])
+            
+            val result = jsAuto.getAutomator().press(x, y, delay)
+            return result
+        }
+        
+        /**
+         * Called by Rhino when JavaScript code calls auto.swipe(x1, y1, x2, y2, delay)
+         */
+        @JvmStatic
+        fun swipe(context: Context, thisObj: Scriptable, args: Array<Any?>, funObj: Function): Any? {
+            val jsAuto = thisObj as? JsAuto
+                ?: throw IllegalStateException("Invalid thisObj for auto.swipe")
+            
+            if (args.size < 5) {
+                throw IllegalArgumentException("auto.swipe() requires 5 arguments: x1, y1, x2, y2, delay")
+            }
+            
+            val x1 = toInt(args[0])
+            val y1 = toInt(args[1])
+            val x2 = toInt(args[2])
+            val y2 = toInt(args[3])
+            val delay = toInt(args[4])
+            
+            val result = jsAuto.getAutomator().swipe(x1, y1, x2, y2, delay)
+            return result
+        }
     }
 }
 

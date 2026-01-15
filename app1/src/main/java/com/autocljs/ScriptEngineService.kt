@@ -15,11 +15,12 @@ import com.autocljs.script.ScriptSource
  */
 class ScriptEngineService private constructor(
     private val context: Context,
-    val globalConsole: Console = SimpleConsole("AutoCLJS")
+    val globalConsole: Console = SimpleConsole("AutoCLJS"),
+    private val sharedRuntime: ScriptRuntime? = null
 ) {
     
     private val engine: ScriptEngine<ScriptSource> by lazy {
-        ClojureScriptEngine(context).apply {
+        ClojureScriptEngine(context, sharedRuntime).apply {
             id = 0
             init()
         }
@@ -61,16 +62,23 @@ class ScriptEngineService private constructor(
      */
     class Builder(private val context: Context) {
         private var console: Console? = null
+        private var runtime: ScriptRuntime? = null
         
         fun setConsole(console: Console): Builder {
             this.console = console
             return this
         }
         
+        fun setRuntime(runtime: ScriptRuntime): Builder {
+            this.runtime = runtime
+            return this
+        }
+        
         fun build(): ScriptEngineService {
             return ScriptEngineService(
                 context,
-                console ?: SimpleConsole("AutoCLJS")
+                console ?: SimpleConsole("AutoCLJS"),
+                runtime
             )
         }
     }
