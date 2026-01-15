@@ -7,6 +7,7 @@ import com.autocljs.ScriptEngineService
 import com.autocljs.accessibility.AccessibilityBridgeImpl
 import com.autocljs.accessibility.AccessibilityConfig
 import com.autocljs.runtime.ScriptRuntime
+import com.autocljs.script.NodeScriptSource
 import com.autocljs.script.StringScriptSource
 import com.autocljs.util.ScreenMetrics
 import com.autocljs.util.UiHandler
@@ -206,7 +207,8 @@ class TestActivity : AppCompatActivity() {
     
     private fun executeScriptSimple(script: Script) {
         try {
-            val source = StringScriptSource("${script.name}.js", script.code)
+            // Use NodeScriptSource to test NodeScriptEngine
+            val source = NodeScriptSource("${script.name}.mjs", script.code)
             val execution = scriptEngineService.execute(source)
             
             val exception = execution.exception
@@ -244,8 +246,8 @@ class TestActivity : AppCompatActivity() {
             runtime.initAutomation(bridge)
             log("Automation initialized")
             
-            // Execute JavaScript code
-            val source = StringScriptSource("${script.name}.js", script.code)
+            // Execute JavaScript code using NodeScriptEngine
+            val source = NodeScriptSource("${script.name}.mjs", script.code)
             val execution = scriptEngineService.execute(source)
             
             val exception = execution.exception

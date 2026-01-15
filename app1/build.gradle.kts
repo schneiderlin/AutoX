@@ -45,6 +45,9 @@ dependencies {
     // Rhino JavaScript engine for executing compiled JavaScript code
     implementation("org.mozilla:rhino:1.7.14")
     
+    // Javet (V8/Node.js) for ES module support
+    implementation("com.caoccao.javet:javet-node-android:5.0.2")
+    
     // For ClojureScript integration (will be added when we integrate ClojureScript)
     // For now, we'll port the core interfaces and structures
     
