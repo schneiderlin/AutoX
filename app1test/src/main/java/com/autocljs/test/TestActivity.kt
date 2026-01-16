@@ -12,8 +12,10 @@ import com.autocljs.script.StringScriptSource
 import com.autocljs.util.ScreenMetrics
 import com.autocljs.util.UiHandler
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.gson.annotations.SerializedName
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
 
@@ -48,6 +50,12 @@ class TestActivity : AppCompatActivity() {
         data class Module(val name: String, val code: String)
     }
     
+    // Wrapper class for server response (server wraps array in object)
+    data class QueryResponse(
+        @SerializedName("success?") val success: Boolean = false,
+        val result: List<Script>? = null
+    )
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -70,8 +78,8 @@ class TestActivity : AppCompatActivity() {
     private fun createUI() {
         // URL input field
         urlEditText = EditText(this).apply {
-            hint = "Enter script endpoint URL"
-            setText("http://10.0.2.2:3000/scripts") // Default for Android emulator
+            hint = "Enter script server base URL"
+            setText("http://10.0.2.2:3000") // Default for Android emulator
             textSize = 14f
             setPadding(16, 16, 16, 16)
         }
@@ -121,19 +129,41 @@ class TestActivity : AppCompatActivity() {
     }
     
     private fun fetchScripts() {
-        val urlString = urlEditText.text.toString().trim()
+        val baseUrl = urlEditText.text.toString().trim()
         
-        if (urlString.isEmpty()) {
+        if (baseUrl.isEmpty()) {
             log("ERROR: Please enter a URL")
             return
         }
         
-        log("Fetching scripts from: $urlString")
+        // Construct the query endpoint URL
+        val queryUrl = if (baseUrl.endsWith("/")) {
+            "${baseUrl}api/query"
+        } else {
+            "$baseUrl/api/query"
+        }
+        
+        log("Fetching scripts from: $queryUrl")
         fetchButton.isEnabled = false
         fetchButton.text = "Loading..."
         
+        // Create JSON request body
+        val requestBody = """
+            {
+                "query/kind": "query/scripts",
+                "query/data": {
+                    "page": 1
+                }
+            }
+        """.trimIndent()
+        
+        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val body = requestBody.toRequestBody(mediaType)
+        
         val request = Request.Builder()
-            .url(urlString)
+            .url(queryUrl)
+            .post(body)
+            .addHeader("Content-Type", "application/json")
             .build()
         
         okHttpClient.newCall(request).enqueue(object : Callback {
@@ -166,9 +196,19 @@ class TestActivity : AppCompatActivity() {
                         return
                     }
                     
-                    // Parse JSON array
-                    val listType = object : TypeToken<List<Script>>() {}.type
-                    val fetchedScripts: List<Script> = gson.fromJson(responseBody, listType)
+                    // Parse JSON response object
+                    val queryResponse: QueryResponse = gson.fromJson(responseBody, QueryResponse::class.java)
+                    
+                    if (!queryResponse.success) {
+                        runOnUiThread {
+                            log("ERROR: Server returned success=false")
+                            fetchButton.isEnabled = true
+                            fetchButton.text = "Fetch Scripts"
+                        }
+                        return
+                    }
+                    
+                    val fetchedScripts = queryResponse.result ?: emptyList()
                     
                     runOnUiThread {
                         scripts = fetchedScripts

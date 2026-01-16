@@ -1,3 +1,7 @@
+.clj-kondo
+**/.cpcache
+.nrepl-port
+.lsp
 *.iml
 .idea
 .gradle
