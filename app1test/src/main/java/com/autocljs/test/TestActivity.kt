@@ -14,6 +14,7 @@ import com.autocljs.util.UiHandler
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.*
+import java.io.File
 import java.io.IOException
 
 /**
@@ -39,7 +40,13 @@ class TestActivity : AppCompatActivity() {
     private var scripts: List<Script> = emptyList()
     
     // Data class for script JSON parsing
-    data class Script(val name: String, val code: String)
+    data class Script(
+        val name: String, 
+        val code: String,
+        val modules: List<Module>? = null
+    ) {
+        data class Module(val name: String, val code: String)
+    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -207,7 +214,16 @@ class TestActivity : AppCompatActivity() {
     
     private fun executeScriptSimple(script: Script) {
         try {
+            // Write additional modules to cacheDir so they can be found by relative imports
+            // NodeScriptEngine writes the entry point to cacheDir, so modules must be there too
+            script.modules?.forEach { module ->
+                val moduleFile = File(cacheDir, module.name)
+                moduleFile.writeText(module.code)
+                log("Written module: ${module.name} to cacheDir")
+            }
+            
             // Use NodeScriptSource to test NodeScriptEngine
+            // NodeScriptEngine will write the entry point to cacheDir with a unique name
             val source = NodeScriptSource("${script.name}.mjs", script.code)
             val execution = scriptEngineService.execute(source)
             
@@ -246,7 +262,16 @@ class TestActivity : AppCompatActivity() {
             runtime.initAutomation(bridge)
             log("Automation initialized")
             
+            // Write additional modules to cacheDir so they can be found by relative imports
+            // NodeScriptEngine writes the entry point to cacheDir, so modules must be there too
+            script.modules?.forEach { module ->
+                val moduleFile = File(cacheDir, module.name)
+                moduleFile.writeText(module.code)
+                log("Written module: ${module.name} to cacheDir")
+            }
+            
             // Execute JavaScript code using NodeScriptEngine
+            // NodeScriptEngine will write the entry point to cacheDir with a unique name
             val source = NodeScriptSource("${script.name}.mjs", script.code)
             val execution = scriptEngineService.execute(source)
             

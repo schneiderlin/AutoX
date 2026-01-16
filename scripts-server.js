@@ -42,6 +42,24 @@ var result3 = auto.longClick(300, 300);
 console.log("Long click result: " + result3);
 
 console.log("Multiple clicks test complete ✓");`
+    },
+    {
+        name: "Phase 3 - Multi-Module Test",
+        code: `import { foo } from './module1.mjs';
+
+console.log("Module2: Calling foo from module1...");
+const result = foo("Hello from module2!");
+console.log("Module2: Result from foo:", result);
+console.log("Multi-module test complete ✓");`,
+        modules: [
+            {
+                name: "module1.mjs",
+                code: `export function foo(message) {
+    console.log("Module1: foo called with:", message);
+    return "foo returned: " + message.toUpperCase();
+}`
+            }
+        ]
     }
 ];
 
