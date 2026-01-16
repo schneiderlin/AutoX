@@ -36,6 +36,25 @@ class SimpleNodeModuleResolver(
         private const val MODULES_PREFIX = "modules/"
         
         /**
+         * Normalize an asset path by resolving . and .. segments.
+         * e.g., "modules/squint-cljs/./src/squint/core.js" -> "modules/squint-cljs/src/squint/core.js"
+         */
+        fun normalizeAssetPath(path: String): String {
+            val segments = path.split("/").toMutableList()
+            val result = mutableListOf<String>()
+            
+            for (segment in segments) {
+                when (segment) {
+                    ".", "" -> { /* skip */ }
+                    ".." -> if (result.isNotEmpty()) result.removeAt(result.lastIndex)
+                    else -> result.add(segment)
+                }
+            }
+            
+            return result.joinToString("/")
+        }
+        
+        /**
          * Check if a file is an ES module.
          */
         fun isEsModule(file: File): Boolean {
@@ -71,6 +90,21 @@ class SimpleNodeModuleResolver(
         // Handle relative paths
         if (resourceName.startsWith("./") || resourceName.startsWith("../")) {
             val referrerPath = v8ModuleReferrer.resourceName
+            
+            // Check if the referrer was loaded from assets (resource name starts with "modules/")
+            if (referrerPath.startsWith(MODULES_PREFIX)) {
+                // Resolve relative path within assets
+                val baseDir = referrerPath.substringBeforeLast("/")
+                val resolvedAssetPath = normalizeAssetPath("$baseDir/$resourceName")
+                Log.d(TAG, "Resolving relative import from assets: $resolvedAssetPath")
+                
+                val module = loadFromAssets(v8Runtime, resolvedAssetPath)
+                if (module != null) {
+                    return module
+                }
+                // Fall through to try filesystem resolution as well
+            }
+            
             val baseFile = File(referrerPath).parentFile ?: File("/")
             val resolvedFile = File(baseFile, resourceName).canonicalFile
             return parsingModule(v8Runtime, resolvedFile)
