@@ -14,9 +14,14 @@ import java.io.FileNotFoundException
 /**
  * Simplified module resolver for Node.js/V8 engine.
  * Supports loading modules from:
- * 1. Assets (squint-runtime/)
- * 2. File system (cache directory)
+ * 1. Pre-bundled modules assets (modules/) - Node.js-like module structure
+ * 2. File system (module directory)
  * 3. Relative paths
+ * 
+ * Module resolution follows Node.js conventions:
+ * - Package name: "utils" → modules/utils/index.mjs or modules/utils/index.js
+ * - Package path: "squint-runtime/core.js" → modules/squint-runtime/core.js
+ * - Supports both .mjs and .js extensions
  */
 class SimpleNodeModuleResolver(
     private val runtime: NodeRuntime,
@@ -28,13 +33,14 @@ class SimpleNodeModuleResolver(
     
     companion object {
         private const val TAG = "SimpleNodeModuleResolver"
-        private const val ASSETS_PREFIX = "squint-runtime/"
+        private const val MODULES_PREFIX = "modules/"
         
         /**
          * Check if a file is an ES module.
          */
         fun isEsModule(file: File): Boolean {
             return file.name.endsWith(".mjs") || 
+                   file.name.endsWith(".js") ||
                    file.readText().contains("import ") || 
                    file.readText().contains("export ")
         }
@@ -75,18 +81,17 @@ class SimpleNodeModuleResolver(
             return parsingModule(v8Runtime, File(resourceName))
         }
         
-        // Handle module names (e.g., "squint-cljs/core.js")
-        // Try loading from assets first
-        val assetPath = ASSETS_PREFIX + resourceName
-        val assetModule = loadFromAssets(v8Runtime, assetPath)
-        if (assetModule != null) {
-            return assetModule
+        // Handle module names (e.g., "utils", "squint-runtime/core.js")
+        // Try loading from pre-bundled modules assets (Node.js-like structure)
+        val moduleFromAssets = resolveModuleFromAssets(v8Runtime, resourceName)
+        if (moduleFromAssets != null) {
+            return moduleFromAssets
         }
         
-        // Try loading from module directory
-        val moduleFile = File(moduleDirectory, resourceName)
-        if (moduleFile.exists()) {
-            return parsingModule(v8Runtime, moduleFile)
+        // Try loading from module directory (filesDir/v7_modules)
+        val moduleFromDirectory = resolveModuleFromDirectory(v8Runtime, resourceName)
+        if (moduleFromDirectory != null) {
+            return moduleFromDirectory
         }
         
         // Try as relative to referrer
@@ -98,6 +103,109 @@ class SimpleNodeModuleResolver(
         }
         
         Log.w(TAG, "Module not found: $resourceName")
+        return null
+    }
+    
+    /**
+     * Resolve a module from Android assets using Node.js-like resolution.
+     * Supports:
+     * - Package name: "utils" → modules/utils/index.mjs, modules/utils/index.js, modules/utils/utils.mjs, etc.
+     * - Package path: "squint-runtime/core.js" → modules/squint-runtime/core.js, modules/squint-runtime/core.mjs
+     */
+    private fun resolveModuleFromAssets(v8Runtime: V8Runtime, resourceName: String): IV8Module? {
+        // Check if it's a package path (contains slash)
+        if (resourceName.contains("/")) {
+            // Package path: "squint-runtime/core.js" or "utils/helper"
+            val hasExtension = resourceName.endsWith(".mjs") || resourceName.endsWith(".js")
+            val paths = if (hasExtension) {
+                // Already has extension, try as-is
+                listOf("$MODULES_PREFIX$resourceName")
+            } else {
+                // No extension, try with .mjs and .js
+                listOf(
+                    "$MODULES_PREFIX$resourceName.mjs",
+                    "$MODULES_PREFIX$resourceName.js"
+                )
+            }
+            
+            for (path in paths) {
+                val module = loadFromAssets(v8Runtime, path)
+                if (module != null) {
+                    return module
+                }
+            }
+        } else {
+            // Package name: "utils" - try multiple resolution strategies
+            val packageName = resourceName
+            val paths = listOf(
+                // Try index.mjs/index.js first (Node.js convention)
+                "$MODULES_PREFIX$packageName/index.mjs",
+                "$MODULES_PREFIX$packageName/index.js",
+                // Try package name as file
+                "$MODULES_PREFIX$packageName/$packageName.mjs",
+                "$MODULES_PREFIX$packageName/$packageName.js",
+                // Try flat file
+                "$MODULES_PREFIX$packageName.mjs",
+                "$MODULES_PREFIX$packageName.js"
+            )
+            
+            for (path in paths) {
+                val module = loadFromAssets(v8Runtime, path)
+                if (module != null) {
+                    return module
+                }
+            }
+        }
+        
+        return null
+    }
+    
+    /**
+     * Resolve a module from the module directory using Node.js-like resolution.
+     */
+    private fun resolveModuleFromDirectory(v8Runtime: V8Runtime, resourceName: String): IV8Module? {
+        // Check if it's a package path (contains slash)
+        if (resourceName.contains("/")) {
+            // Package path: "squint-runtime/core.js"
+            val hasExtension = resourceName.endsWith(".mjs") || resourceName.endsWith(".js")
+            val paths = if (hasExtension) {
+                // Already has extension, try as-is
+                listOf(File(moduleDirectory, resourceName))
+            } else {
+                // No extension, try with .mjs and .js
+                listOf(
+                    File(moduleDirectory, "$resourceName.mjs"),
+                    File(moduleDirectory, "$resourceName.js")
+                )
+            }
+            
+            for (file in paths) {
+                if (file.exists()) {
+                    return parsingModule(v8Runtime, file)
+                }
+            }
+        } else {
+            // Package name: "utils" - try multiple resolution strategies
+            val packageName = resourceName
+            val paths = listOf(
+                // Try index.mjs/index.js first (Node.js convention)
+                File(moduleDirectory, "$packageName/index.mjs"),
+                File(moduleDirectory, "$packageName/index.js"),
+                // Try package name as file
+                File(moduleDirectory, "$packageName/$packageName.mjs"),
+                File(moduleDirectory, "$packageName/$packageName.js"),
+                // Try flat file
+                File(moduleDirectory, "$packageName.mjs"),
+                File(moduleDirectory, "$packageName.js")
+            )
+            
+            for (file in paths) {
+                if (file.exists()) {
+                    return parsingModule(v8Runtime, file)
+                }
+            }
+        }
+        
         return null
     }
     
