@@ -28,7 +28,7 @@
    :adapter/jetty {:port (Integer. (or (System/getenv "PORT") "3000"))
                    :handler (ig/ref :jetty/handler)}})
 
-(defmethod ig/init-key :jetty/routes [_ {:keys [ws-server] :as system}] 
+(defmethod ig/init-key :jetty/routes [_ {:keys [ws-server] :as system}]
   (jm/make-routes system ws-server query-handler command-handler))
 
 (defmethod ig/init-key :jetty/handler [_ routes]

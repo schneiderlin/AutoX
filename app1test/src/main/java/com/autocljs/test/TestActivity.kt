@@ -1,8 +1,13 @@
 package com.autocljs.test
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.autocljs.ScriptEngineService
 import com.autocljs.accessibility.AccessibilityBridgeImpl
 import com.autocljs.accessibility.AccessibilityConfig
@@ -29,10 +34,15 @@ import java.io.IOException
  * - Execute selected scripts
  */
 class TestActivity : AppCompatActivity() {
-    
+
+    private companion object {
+        private const val OVERLAY_PERMISSION_REQUEST_CODE = 1234
+    }
+
     private lateinit var logView: TextView
     private lateinit var urlEditText: EditText
     private lateinit var fetchButton: Button
+    private lateinit var floatingButton: Button
     private lateinit var scriptListView: ListView
     private lateinit var runtime: ScriptRuntime
     private lateinit var scriptEngineService: ScriptEngineService
@@ -89,7 +99,13 @@ class TestActivity : AppCompatActivity() {
             text = "Fetch Scripts"
             setOnClickListener { fetchScripts() }
         }
-        
+
+        // Floating window button
+        floatingButton = Button(this).apply {
+            text = "Show Floating Button"
+            setOnClickListener { showFloatingButton() }
+        }
+
         // Script list view
         scriptListView = ListView(this).apply {
             onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -113,6 +129,7 @@ class TestActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             addView(urlEditText)
             addView(fetchButton)
+            addView(floatingButton)
             addView(scriptListView, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
@@ -338,5 +355,50 @@ class TestActivity : AppCompatActivity() {
             logView.text = "${logView.text}\n$message"
         }
         android.util.Log.d("TestActivity", message)
+    }
+
+    private fun showFloatingButton() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                // Request overlay permission
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+                log("Requesting overlay permission...")
+            } else {
+                // Permission already granted, start the floating window service
+                startFloatingWindowService()
+            }
+        } else {
+            // Pre-Marshmallow, permission is granted at install time
+            startFloatingWindowService()
+        }
+    }
+
+    private fun startFloatingWindowService() {
+        val intent = Intent(this, FloatingWindowService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+        log("Floating window service started!")
+        log("Look for the floating button on your screen")
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Settings.canDrawOverlays(this)) {
+                    log("Overlay permission granted!")
+                    startFloatingWindowService()
+                } else {
+                    log("Overlay permission denied. Floating button cannot be shown.")
+                }
+            }
+        }
     }
 }
