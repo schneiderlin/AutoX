@@ -882,3 +882,6 @@ clj꞉squint-compiler.api꞉> 
 ; Evaluating file: api.clj
 #'squint-compiler.api/command-handler
 clj꞉squint-compiler.api꞉> 
+; Evaluating file: api.clj
+#'squint-compiler.api/command-handler
+clj꞉squint-compiler.api꞉> 

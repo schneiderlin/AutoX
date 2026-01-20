@@ -18,8 +18,7 @@ console.log('Testing auto.clickNode()...');
 
 // Find a button by text (you can adjust the selector)
 const button = layout.findOne({ text: 'OK' }) ||
-               layout.findOne({ text: 'Continue' }) ||
-               layout.findOne({ className: 'android.widget.Button' });
+               layout.findOne({ text: 'FETCH SCRIPTS' });
 
 if (button) {
   console.log('Found button:', button.text || button.className);

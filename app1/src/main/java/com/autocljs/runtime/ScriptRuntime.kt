@@ -44,10 +44,11 @@ class ScriptRuntime(private val context: Context) {
     /**
      * Initialize automation with accessibility bridge.
      * Creates a background thread for gesture callbacks to avoid blocking the main thread.
+     * Also initializes the layout inspector.
      */
     fun initAutomation(bridge: AccessibilityBridge) {
         this.accessibilityBridge = bridge
-        
+
         // Create a background thread for gesture callbacks
         // This avoids deadlock when calling gestures from the main thread
         if (gestureHandlerThread == null) {
@@ -56,14 +57,19 @@ class ScriptRuntime(private val context: Context) {
             }
             gestureHandler = Handler(gestureHandlerThread!!.looper)
         }
-        
+
         this.automator = SimpleActionAutomator(bridge) {
             gestureHandler!!
         }
+
+        // Automatically initialize layout inspector with the same bridge
+        this.layoutInspector = LayoutInspector(context, bridge)
     }
 
     /**
      * Initialize layout inspector with accessibility bridge.
+     * Note: This is called automatically by initAutomation(), so you typically
+     * don't need to call this directly.
      */
     fun initLayoutInspector(bridge: AccessibilityBridge) {
         this.layoutInspector = LayoutInspector(context, bridge)
