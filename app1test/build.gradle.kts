@@ -47,5 +47,9 @@ dependencies {
 
     // EnhancedFloaty for floating window support
     implementation("com.github.hyb1996:EnhancedFloaty:0.31")
+
+    // Coroutines and lifecycle support
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
 

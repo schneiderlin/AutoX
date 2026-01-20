@@ -6,8 +6,15 @@
    [squint-compiler.api :as compiler] 
    [integrant.core :as ig]))
 
+(defn normalize-command [command]
+  (if (string? (:command/kind command))
+    (assoc command :command/kind (keyword (:command/kind command)))
+    command))
+
 (defn command-handler [system command]
-  (or #_(compiler/command-hander command)))
+  (println "command:" command)
+  (let [command (normalize-command command)]
+    (or (compiler/command-handler command))))
 
 (defn normalize-query [query]
   (if (string? (:query/kind query))

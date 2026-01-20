@@ -1,4 +1,5 @@
-(ns squint-compiler.api)
+(ns squint-compiler.api
+  (:require [clojure.string :as str]))
 
 
 (defn query-handler [query]
@@ -55,11 +56,14 @@ export { foo }
   (query-handler {:query/kind :query/scripts, :query/data {:page 1}})
   :rcf)
 
-#_(defn command-handler [command]
+(defn command-handler [command]
+  (println "command:" command)
   (case (:command/kind command)
-    :command/sync-now
-    (let [{:keys [group-name]} (:command/data command)
-          ds (tiktok-db/get-ds)]
-      (core/sync-all-browsers-in-group! (or group-name "tiktok") ds))
+    :command/save-layout
+    (let [{:keys [layout-data timestamp]} (:command/data command)
+          filename (str "layouts/layout_" (str/replace (str timestamp) ":" "-") ".json")
+          _ (.mkdirs (java.io.File. (java.io.File. filename) ".."))
+          _ (spit filename layout-data)]
+      {:status "ok" :file filename})
 
     nil))

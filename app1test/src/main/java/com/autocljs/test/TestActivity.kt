@@ -7,6 +7,14 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.autocljs.layout.getLayout
+import com.autocljs.layout.layoutToJson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.*
 import androidx.core.app.ActivityCompat
 import com.autocljs.ScriptEngineService
 import com.autocljs.accessibility.AccessibilityBridgeImpl
@@ -43,6 +51,7 @@ class TestActivity : AppCompatActivity() {
     private lateinit var urlEditText: EditText
     private lateinit var fetchButton: Button
     private lateinit var floatingButton: Button
+    private lateinit var testLayoutButton: Button
     private lateinit var scriptListView: ListView
     private lateinit var runtime: ScriptRuntime
     private lateinit var scriptEngineService: ScriptEngineService
@@ -106,6 +115,12 @@ class TestActivity : AppCompatActivity() {
             setOnClickListener { showFloatingButton() }
         }
 
+        // Test Layout Inspector button
+        testLayoutButton = Button(this).apply {
+            text = "Test Layout Inspector"
+            setOnClickListener { testLayoutInspector() }
+        }
+
         // Script list view
         scriptListView = ListView(this).apply {
             onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -130,6 +145,7 @@ class TestActivity : AppCompatActivity() {
             addView(urlEditText)
             addView(fetchButton)
             addView(floatingButton)
+            addView(testLayoutButton)
             addView(scriptListView, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
@@ -398,6 +414,81 @@ class TestActivity : AppCompatActivity() {
                 } else {
                     log("Overlay permission denied. Floating button cannot be shown.")
                 }
+            }
+        }
+    }
+
+    /**
+     * Test Layout Inspector - captures current layout and sends to script server.
+     */
+    private fun testLayoutInspector() {
+        log("Capturing layout...")
+
+        lifecycleScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    // Get the layout using the function from app1 module
+                    val layout = getLayout()
+                    if (layout == null) {
+                        return@withContext "ERROR: Accessibility service not enabled or no active window"
+                    }
+
+                    // Convert to JSON
+                    val layoutJson = layoutToJson(layout)
+
+                    // Send to script server
+                    val baseUrl = urlEditText.text.toString().trim()
+                    if (baseUrl.isEmpty()) {
+                        return@withContext "ERROR: Please enter a server URL"
+                    }
+
+                    val commandUrl = if (baseUrl.endsWith("/")) {
+                        "${baseUrl}api/command"
+                    } else {
+                        "$baseUrl/api/command"
+                    }
+
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
+
+                    // Build command payload using proper JSON structure
+                    val commandData = mapOf(
+                        "command/kind" to "command/save-layout",
+                        "command/data" to mapOf(
+                            "layout-data" to layoutJson,
+                            "timestamp" to timestamp
+                        )
+                    )
+                    val commandBody = gson.toJson(commandData)
+
+                    val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+                    val body = commandBody.toRequestBody(mediaType)
+
+                    val request = Request.Builder()
+                        .url(commandUrl)
+                        .post(body)
+                        .addHeader("Content-Type", "application/json")
+                        .build()
+
+                    val response = okHttpClient.newCall(request).execute()
+
+                    if (!response.isSuccessful) {
+                        return@withContext "ERROR: Server returned ${response.code}"
+                    }
+
+                    val responseBody = response.body?.string()
+                    if (responseBody != null) {
+                        val responseObj = gson.fromJson(responseBody, Map::class.java)
+                        val file = responseObj["file"]?.toString() ?: "unknown"
+                        "SUCCESS: Saved to $file"
+                    } else {
+                        "ERROR: Empty response from server"
+                    }
+                }
+
+                log(result)
+            } catch (e: Exception) {
+                log("ERROR: ${e.message}")
+                android.util.Log.e("TestActivity", "Layout inspector error", e)
             }
         }
     }
