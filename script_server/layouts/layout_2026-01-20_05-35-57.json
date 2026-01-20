@@ -1,0 +1,235 @@
+{
+  "className": "android.widget.FrameLayout",
+  "id": "",
+  "text": "null",
+  "desc": "null",
+  "bounds": "[0, 0][720, 1280]",
+  "clickable": false,
+  "depth": 0,
+  "children": [
+    {
+      "className": "android.widget.LinearLayout",
+      "id": "",
+      "text": "null",
+      "desc": "null",
+      "bounds": "[0, 0][720, 1232]",
+      "clickable": false,
+      "depth": 1,
+      "children": [
+        {
+          "className": "android.widget.FrameLayout",
+          "id": "",
+          "text": "null",
+          "desc": "null",
+          "bounds": "[0, 48][720, 1232]",
+          "clickable": false,
+          "depth": 2,
+          "children": [
+            {
+              "className": "android.view.ViewGroup",
+              "id": "com.autocljs.test:id/decor_content_parent",
+              "text": "null",
+              "desc": "null",
+              "bounds": "[0, 48][720, 1232]",
+              "clickable": false,
+              "depth": 3,
+              "children": [
+                {
+                  "className": "android.widget.FrameLayout",
+                  "id": "com.autocljs.test:id/action_bar_container",
+                  "text": "null",
+                  "desc": "null",
+                  "bounds": "[0, 48][720, 160]",
+                  "clickable": false,
+                  "depth": 4,
+                  "children": [
+                    {
+                      "className": "android.view.ViewGroup",
+                      "id": "com.autocljs.test:id/action_bar",
+                      "text": "null",
+                      "desc": "null",
+                      "bounds": "[0, 48][720, 160]",
+                      "clickable": false,
+                      "depth": 5,
+                      "children": [
+                        {
+                          "className": "android.widget.TextView",
+                          "id": "",
+                          "text": "AutoCLJS Test",
+                          "desc": "null",
+                          "bounds": "[32, 77][298, 131]",
+                          "clickable": false,
+                          "depth": 6,
+                          "children": []
+                        },
+                        {
+                          "className": "androidx.appcompat.widget.LinearLayoutCompat",
+                          "id": "",
+                          "text": "null",
+                          "desc": "null",
+                          "bounds": "[720, 48][720, 160]",
+                          "clickable": false,
+                          "depth": 6,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "className": "android.widget.FrameLayout",
+                  "id": "android:id/content",
+                  "text": "null",
+                  "desc": "null",
+                  "bounds": "[0, 160][720, 1232]",
+                  "clickable": false,
+                  "depth": 4,
+                  "children": [
+                    {
+                      "className": "android.widget.LinearLayout",
+                      "id": "",
+                      "text": "null",
+                      "desc": "null",
+                      "bounds": "[0, 160][720, 1232]",
+                      "clickable": false,
+                      "depth": 5,
+                      "children": [
+                        {
+                          "className": "android.widget.EditText",
+                          "id": "",
+                          "text": "http://10.0.2.2:3000",
+                          "desc": "null",
+                          "bounds": "[0, 160][720, 230]",
+                          "clickable": true,
+                          "depth": 6,
+                          "children": []
+                        },
+                        {
+                          "className": "android.widget.Button",
+                          "id": "",
+                          "text": "FETCH SCRIPTS",
+                          "desc": "null",
+                          "bounds": "[0, 230][720, 326]",
+                          "clickable": true,
+                          "depth": 6,
+                          "children": []
+                        },
+                        {
+                          "className": "android.widget.Button",
+                          "id": "",
+                          "text": "SHOW FLOATING BUTTON",
+                          "desc": "null",
+                          "bounds": "[0, 326][720, 422]",
+                          "clickable": true,
+                          "depth": 6,
+                          "children": []
+                        },
+                        {
+                          "className": "android.widget.Button",
+                          "id": "",
+                          "text": "TEST LAYOUT INSPECTOR",
+                          "desc": "null",
+                          "bounds": "[0, 422][720, 518]",
+                          "clickable": true,
+                          "depth": 6,
+                          "children": []
+                        },
+                        {
+                          "className": "android.widget.ListView",
+                          "id": "",
+                          "text": "null",
+                          "desc": "null",
+                          "bounds": "[0, 518][720, 875]",
+                          "clickable": false,
+                          "depth": 6,
+                          "children": [
+                            {
+                              "className": "android.widget.TextView",
+                              "id": "android:id/text1",
+                              "text": "Phase 1 - Console Test",
+                              "desc": "null",
+                              "bounds": "[0, 518][720, 614]",
+                              "clickable": false,
+                              "depth": 7,
+                              "children": []
+                            },
+                            {
+                              "className": "android.widget.TextView",
+                              "id": "android:id/text1",
+                              "text": "Phase 4 - Common Modules Test",
+                              "desc": "null",
+                              "bounds": "[0, 616][720, 712]",
+                              "clickable": false,
+                              "depth": 7,
+                              "children": []
+                            },
+                            {
+                              "className": "android.widget.TextView",
+                              "id": "android:id/text1",
+                              "text": "Phase 5 - Squint-CLJS Test",
+                              "desc": "null",
+                              "bounds": "[0, 714][720, 810]",
+                              "clickable": false,
+                              "depth": 7,
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "className": "android.widget.ScrollView",
+                          "id": "",
+                          "text": "null",
+                          "desc": "null",
+                          "bounds": "[0, 875][720, 1232]",
+                          "clickable": false,
+                          "depth": 6,
+                          "children": [
+                            {
+                              "className": "android.widget.TextView",
+                              "id": "",
+                              "text": "AutoCLJS Test App
+
+Enter URL and tap 'Fetch Scripts' to load scripts
+Fetching scripts from: http://10.0.2.2:3000/api/query
+Successfully fetched 3 script(s)
+Capturing layout...",
+                              "desc": "null",
+                              "bounds": "[0, 875][720, 1080]",
+                              "clickable": false,
+                              "depth": 7,
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "className": "android.view.View",
+      "id": "android:id/statusBarBackground",
+      "text": "null",
+      "desc": "null",
+      "bounds": "[0, 0][720, 48]",
+      "clickable": false,
+      "depth": 1,
+      "children": []
+    },
+    {
+      "className": "android.view.View",
+      "id": "android:id/navigationBarBackground",
+      "text": "null",
+      "desc": "null",
+      "bounds": "[0, 1232][720, 1280]",
+      "clickable": false,
+      "depth": 1,
+      "children": []
+    }
+  ]
+}

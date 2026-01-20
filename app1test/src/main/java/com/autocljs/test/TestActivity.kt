@@ -57,9 +57,22 @@ class TestActivity : AppCompatActivity() {
     private lateinit var scriptEngineService: ScriptEngineService
     private lateinit var okHttpClient: OkHttpClient
     private lateinit var gson: Gson
-    
+
     private var scripts: List<Script> = emptyList()
-    
+
+    // Common request data classes
+    data class ServerRequest<T>(
+        @SerializedName("query/kind") val queryKind: String? = null,
+        @SerializedName("query/data") val queryData: T? = null,
+        @SerializedName("command/kind") val commandKind: String? = null,
+        @SerializedName("command/data") val commandData: T? = null
+    )
+
+    data class ServerResponse<T>(
+        @SerializedName("success?") val success: Boolean = false,
+        val result: T? = null
+    )
+
     // Data class for script JSON parsing
     data class Script(
         val name: String, 
@@ -68,13 +81,7 @@ class TestActivity : AppCompatActivity() {
     ) {
         data class Module(val name: String, val code: String)
     }
-    
-    // Wrapper class for server response (server wraps array in object)
-    data class QueryResponse(
-        @SerializedName("success?") val success: Boolean = false,
-        val result: List<Script>? = null
-    )
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -160,106 +167,137 @@ class TestActivity : AppCompatActivity() {
         
         setContentView(layout)
     }
-    
+
+    // ==================== Common HTTP Client Methods ====================
+
+    /**
+     * Build endpoint URL from base URL and endpoint path.
+     */
+    private fun buildEndpointUrl(baseUrl: String, endpoint: String): String {
+        return if (baseUrl.endsWith("/")) {
+            "${baseUrl}$endpoint"
+        } else {
+            "$baseUrl/$endpoint"
+        }
+    }
+
+    /**
+     * Send a synchronous query request to the server.
+     * @return Pair of (success flag, response body string or error message)
+     */
+    private fun sendQueryRequest(
+        baseUrl: String,
+        kind: String,
+        data: Any
+    ): Pair<Boolean, String> {
+        val queryUrl = buildEndpointUrl(baseUrl, "api/query")
+        val requestBody = ServerRequest(
+            queryKind = kind,
+            queryData = data
+        )
+        return sendPostRequest(queryUrl, requestBody)
+    }
+
+    /**
+     * Send a synchronous command request to the server.
+     * @return Pair of (success flag, response body string or error message)
+     */
+    private fun sendCommandRequest(
+        baseUrl: String,
+        kind: String,
+        data: Any
+    ): Pair<Boolean, String> {
+        val commandUrl = buildEndpointUrl(baseUrl, "api/command")
+        val requestBody = ServerRequest(
+            commandKind = kind,
+            commandData = data
+        )
+        return sendPostRequest(commandUrl, requestBody)
+    }
+
+    /**
+     * Send a synchronous POST request with JSON body.
+     * @return Pair of (success flag, response body string or error message)
+     */
+    private fun sendPostRequest(url: String, requestBody: Any): Pair<Boolean, String> {
+        val jsonBody = gson.toJson(requestBody)
+        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val body = jsonBody.toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url(url)
+            .post(body)
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        try {
+            val response = okHttpClient.newCall(request).execute()
+            if (!response.isSuccessful) {
+                return Pair(false, "HTTP ${response.code}: ${response.message}")
+            }
+            val responseBody = response.body?.string()
+            if (responseBody == null) {
+                return Pair(false, "Empty response from server")
+            }
+            return Pair(true, responseBody)
+        } catch (e: IOException) {
+            return Pair(false, "Request failed: ${e.message}")
+        }
+    }
+
+    // ==================== End Common HTTP Client Methods ====================
+
     private fun fetchScripts() {
         val baseUrl = urlEditText.text.toString().trim()
-        
+
         if (baseUrl.isEmpty()) {
             log("ERROR: Please enter a URL")
             return
         }
-        
-        // Construct the query endpoint URL
-        val queryUrl = if (baseUrl.endsWith("/")) {
-            "${baseUrl}api/query"
-        } else {
-            "$baseUrl/api/query"
-        }
-        
+
+        val queryUrl = buildEndpointUrl(baseUrl, "api/query")
         log("Fetching scripts from: $queryUrl")
         fetchButton.isEnabled = false
         fetchButton.text = "Loading..."
-        
-        // Create JSON request body
-        val requestBody = """
-            {
-                "query/kind": "query/scripts",
-                "query/data": {
-                    "page": 1
+
+        // Run on background thread
+        Thread {
+            val queryData = mapOf("page" to 1)
+            val (success, responseBodyOrError) = sendQueryRequest(baseUrl, "query/scripts", queryData)
+
+            runOnUiThread {
+                if (!success) {
+                    log("ERROR: $responseBodyOrError")
+                    fetchButton.isEnabled = true
+                    fetchButton.text = "Fetch Scripts"
+                    return@runOnUiThread
                 }
-            }
-        """.trimIndent()
-        
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val body = requestBody.toRequestBody(mediaType)
-        
-        val request = Request.Builder()
-            .url(queryUrl)
-            .post(body)
-            .addHeader("Content-Type", "application/json")
-            .build()
-        
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    log("ERROR: Failed to fetch scripts: ${e.message}")
+
+                try {
+                    // Parse JSON response object using generic type
+                    val responseType = object : com.google.gson.reflect.TypeToken<ServerResponse<List<Script>>>() {}.type
+                    val serverResponse: ServerResponse<List<Script>> = gson.fromJson(responseBodyOrError, responseType)
+
+                    if (!serverResponse.success) {
+                        log("ERROR: Server returned success=false")
+                        fetchButton.isEnabled = true
+                        fetchButton.text = "Fetch Scripts"
+                        return@runOnUiThread
+                    }
+
+                    val fetchedScripts = serverResponse.result ?: emptyList()
+                    scripts = fetchedScripts
+                    updateScriptList()
+                    log("Successfully fetched ${scripts.size} script(s)")
+                } catch (e: Exception) {
+                    log("ERROR: Failed to parse JSON: ${e.message}")
+                    e.printStackTrace()
+                } finally {
                     fetchButton.isEnabled = true
                     fetchButton.text = "Fetch Scripts"
                 }
             }
-            
-            override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    runOnUiThread {
-                        log("ERROR: HTTP ${response.code}: ${response.message}")
-                        fetchButton.isEnabled = true
-                        fetchButton.text = "Fetch Scripts"
-                    }
-                    return
-                }
-                
-                try {
-                    val responseBody = response.body?.string()
-                    if (responseBody == null) {
-                        runOnUiThread {
-                            log("ERROR: Empty response from server")
-                            fetchButton.isEnabled = true
-                            fetchButton.text = "Fetch Scripts"
-                        }
-                        return
-                    }
-                    
-                    // Parse JSON response object
-                    val queryResponse: QueryResponse = gson.fromJson(responseBody, QueryResponse::class.java)
-                    
-                    if (!queryResponse.success) {
-                        runOnUiThread {
-                            log("ERROR: Server returned success=false")
-                            fetchButton.isEnabled = true
-                            fetchButton.text = "Fetch Scripts"
-                        }
-                        return
-                    }
-                    
-                    val fetchedScripts = queryResponse.result ?: emptyList()
-                    
-                    runOnUiThread {
-                        scripts = fetchedScripts
-                        updateScriptList()
-                        log("Successfully fetched ${scripts.size} script(s)")
-                        fetchButton.isEnabled = true
-                        fetchButton.text = "Fetch Scripts"
-                    }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        log("ERROR: Failed to parse JSON: ${e.message}")
-                        e.printStackTrace()
-                        fetchButton.isEnabled = true
-                        fetchButton.text = "Fetch Scripts"
-                    }
-                }
-            }
-        })
+        }.start()
     }
     
     private fun updateScriptList() {
@@ -442,47 +480,24 @@ class TestActivity : AppCompatActivity() {
                         return@withContext "ERROR: Please enter a server URL"
                     }
 
-                    val commandUrl = if (baseUrl.endsWith("/")) {
-                        "${baseUrl}api/command"
-                    } else {
-                        "$baseUrl/api/command"
-                    }
-
                     val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
 
                     // Build command payload using proper JSON structure
                     val commandData = mapOf(
-                        "command/kind" to "command/save-layout",
-                        "command/data" to mapOf(
-                            "layout-data" to layoutJson,
-                            "timestamp" to timestamp
-                        )
+                        "layout-data" to layoutJson,
+                        "timestamp" to timestamp
                     )
-                    val commandBody = gson.toJson(commandData)
 
-                    val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-                    val body = commandBody.toRequestBody(mediaType)
+                    val (success, responseBodyOrError) = sendCommandRequest(baseUrl, "command/save-layout", commandData)
 
-                    val request = Request.Builder()
-                        .url(commandUrl)
-                        .post(body)
-                        .addHeader("Content-Type", "application/json")
-                        .build()
-
-                    val response = okHttpClient.newCall(request).execute()
-
-                    if (!response.isSuccessful) {
-                        return@withContext "ERROR: Server returned ${response.code}"
+                    if (!success) {
+                        return@withContext "ERROR: $responseBodyOrError"
                     }
 
-                    val responseBody = response.body?.string()
-                    if (responseBody != null) {
-                        val responseObj = gson.fromJson(responseBody, Map::class.java)
-                        val file = responseObj["file"]?.toString() ?: "unknown"
-                        "SUCCESS: Saved to $file"
-                    } else {
-                        "ERROR: Empty response from server"
-                    }
+                    // Parse response to get file path
+                    val responseObj = gson.fromJson(responseBodyOrError, Map::class.java)
+                    val file = responseObj["file"]?.toString() ?: "unknown"
+                    "SUCCESS: Saved to $file"
                 }
 
                 log(result)
