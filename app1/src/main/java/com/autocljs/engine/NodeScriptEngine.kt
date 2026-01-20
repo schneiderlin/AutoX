@@ -5,6 +5,7 @@ import android.util.Log
 import com.autocljs.runtime.ScriptRuntime
 import com.autocljs.runtime.api.NodeAuto
 import com.autocljs.runtime.api.NodeConsole
+import com.autocljs.runtime.api.NodeLayout
 import com.autocljs.script.NodeScriptSource
 import com.autocljs.script.ScriptSource
 import com.caoccao.javet.entities.JavetEntityError
@@ -49,6 +50,7 @@ class NodeScriptEngine(
     private var currentResultListener: PromiseListener? = null
     private var console: NodeConsole? = null
     private var auto: NodeAuto? = null
+    private var layout: NodeLayout? = null
     private val converter = JavetProxyConverter().apply {
         config.setProxyMapEnabled(true)
         config.setProxySetEnabled(true)
@@ -77,9 +79,10 @@ class NodeScriptEngine(
         if (!isInitialized) {
             scriptRuntime = sharedRuntime ?: ScriptRuntime(context)
             
-            // Initialize console and auto APIs
+            // Initialize console, auto, and layout APIs
             console = NodeConsole(scriptRuntime!!.console)
             auto = scriptRuntime?.let { NodeAuto(it) }
+            layout = scriptRuntime?.let { NodeLayout(it) }
             
             runtime.converter = converter
             runtime.allowEval(true)
@@ -122,16 +125,19 @@ class NodeScriptEngine(
     }
     
     /**
-     * Initialize console and auto APIs in the global scope.
+     * Initialize console, auto, and layout APIs in the global scope.
      */
     private fun initializeApi() = runtime.globalObject.use { global ->
         // Expose console
         console?.install(runtime, global)
-        
+
         // Expose auto
         auto?.install(runtime, global)
-        
-        Log.d(TAG, "Console and Auto APIs exposed")
+
+        // Expose layout
+        layout?.install(runtime, global)
+
+        Log.d(TAG, "Console, Auto, and Layout APIs exposed")
     }
     
     override fun put(name: String, value: Any?) {
@@ -298,6 +304,7 @@ class NodeScriptEngine(
         runtime.globalObject.use { global ->
             console?.recycle(runtime, global)
             auto?.recycle(runtime, global)
+            layout?.recycle(runtime, global)
         }
         
         // Clean up module resolver

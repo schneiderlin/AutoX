@@ -6,6 +6,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import com.autocljs.accessibility.AccessibilityBridge
 import com.autocljs.automation.SimpleActionAutomator
+import com.autocljs.layout.LayoutInspector
 import com.autocljs.runtime.api.Console
 
 /**
@@ -18,6 +19,7 @@ class ScriptRuntime(private val context: Context) {
     
     private var accessibilityBridge: AccessibilityBridge? = null
     private var automator: SimpleActionAutomator? = null
+    private var layoutInspector: LayoutInspector? = null
     
     // Background thread for gesture callbacks to avoid deadlock
     private var gestureHandlerThread: HandlerThread? = null
@@ -30,7 +32,15 @@ class ScriptRuntime(private val context: Context) {
     fun getAutomator(): SimpleActionAutomator? {
         return automator
     }
-    
+
+    /**
+     * Get the layout inspector for UI hierarchy queries.
+     * Will be exposed to JavaScript runtime.
+     */
+    fun getLayoutInspector(): LayoutInspector? {
+        return layoutInspector
+    }
+
     /**
      * Initialize automation with accessibility bridge.
      * Creates a background thread for gesture callbacks to avoid blocking the main thread.
@@ -50,6 +60,13 @@ class ScriptRuntime(private val context: Context) {
         this.automator = SimpleActionAutomator(bridge) {
             gestureHandler!!
         }
+    }
+
+    /**
+     * Initialize layout inspector with accessibility bridge.
+     */
+    fun initLayoutInspector(bridge: AccessibilityBridge) {
+        this.layoutInspector = LayoutInspector(context, bridge)
     }
     
     /**

@@ -96,6 +96,38 @@ data class NodeInfo(
         return null
     }
 
+    /**
+     * Get the center point of the node's bounds in screen coordinates.
+     */
+    fun center(): Pair<Int, Int> {
+        return Pair(
+            boundsInScreen.left + boundsInScreen.width() / 2,
+            boundsInScreen.top + boundsInScreen.height() / 2
+        )
+    }
+
+    /**
+     * Check if the node has valid bounds (non-empty and non-zero area).
+     */
+    fun hasValidBounds(): Boolean {
+        return !boundsInScreen.isEmpty &&
+            boundsInScreen.width() > 0 &&
+            boundsInScreen.height() > 0
+    }
+
+    /**
+     * Check if this node or any of its ancestors is clickable.
+     */
+    fun isClickable(): Boolean {
+        if (clickable) return true
+        var current = parent
+        while (current != null) {
+            if (current.clickable) return true
+            current = current.parent
+        }
+        return false
+    }
+
     companion object {
         /**
          * Create a NodeInfo from AccessibilityNodeInfo

@@ -1,6 +1,7 @@
 package com.autocljs.runtime.api
 
 import com.autocljs.automation.SimpleActionAutomator
+import com.autocljs.layout.NodeInfo
 import com.autocljs.runtime.ScriptRuntime
 import com.caoccao.javet.annotations.V8Function
 import com.caoccao.javet.interop.V8Runtime
@@ -104,7 +105,24 @@ class NodeAuto(val runtime: ScriptRuntime) {
         val delayInt = toInt(delay)
         return getAutomator().swipe(x1Int, y1Int, x2Int, y2Int, delayInt)
     }
-    
+
+    /**
+     * Called by V8 when JavaScript code calls auto.clickNode(node)
+     */
+    @V8Function
+    fun clickNode(node: V8Value?): Boolean {
+        if (node == null) {
+            throw IllegalArgumentException("auto.clickNode() requires 1 argument: node")
+        }
+
+        // Use converter to get the Java object
+        val nodeObj = node.v8Runtime.converter.toObject<Any?>(node)
+        val nodeInfo = nodeObj as? NodeInfo
+            ?: throw IllegalArgumentException("auto.clickNode() argument must be a NodeInfo object")
+
+        return getAutomator().clickNode(nodeInfo)
+    }
+
     companion object {
         /**
          * JavaScript code to create auto object.

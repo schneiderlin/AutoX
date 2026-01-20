@@ -12,6 +12,28 @@ console.info(\"This is an info message\");
 console.warn(\"This is a warning message\");
 console.error(\"This is an error message\");
 console.log(\"Phase 1 test complete!\");"}
+     {:name "Phase 3 - Click Button Test"
+      :code "// Test clicking a button using auto.clickNode()
+console.log('Testing auto.clickNode()...');
+
+// Find a button by text (you can adjust the selector)
+const button = layout.findOne({ text: 'OK' }) ||
+               layout.findOne({ text: 'Continue' }) ||
+               layout.findOne({ className: 'android.widget.Button' });
+
+if (button) {
+  console.log('Found button:', button.text || button.className);
+  const success = auto.clickNode(button);
+  if (success) {
+    console.log('Successfully clicked button!');
+  } else {
+    console.error('Failed to click button');
+  }
+} else {
+  console.warn('No button found to click');
+}
+
+console.log('Click test complete!');"}
      {:name "Phase 4 - Common Modules Test"
       :code "// Import pre-bundled common modules from Android assets
 // Uses Node.js-like module resolution: package name resolves to modules/package/index.mjs

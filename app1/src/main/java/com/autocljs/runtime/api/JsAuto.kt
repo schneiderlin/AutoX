@@ -1,6 +1,7 @@
 package com.autocljs.runtime.api
 
 import com.autocljs.automation.SimpleActionAutomator
+import com.autocljs.layout.NodeInfo
 import com.autocljs.runtime.ScriptRuntime
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
@@ -18,7 +19,7 @@ class JsAuto(val runtime: ScriptRuntime) : ScriptableObject() {
     init {
         // Define function properties that will be callable from JavaScript
         defineFunctionProperties(
-            arrayOf("click", "longClick", "press", "swipe"),
+            arrayOf("click", "longClick", "press", "swipe", "clickNode"),
             JsAuto::class.java,
             ScriptableObject.READONLY
         )
@@ -127,6 +128,25 @@ class JsAuto(val runtime: ScriptRuntime) : ScriptableObject() {
             val delay = toInt(args[4])
             
             val result = jsAuto.getAutomator().swipe(x1, y1, x2, y2, delay)
+            return result
+        }
+
+        /**
+         * Called by Rhino when JavaScript code calls auto.clickNode(node)
+         */
+        @JvmStatic
+        fun clickNode(context: Context, thisObj: Scriptable, args: Array<Any?>, funObj: Function): Any? {
+            val jsAuto = thisObj as? JsAuto
+                ?: throw IllegalStateException("Invalid thisObj for auto.clickNode")
+
+            if (args.isEmpty()) {
+                throw IllegalArgumentException("auto.clickNode() requires at least 1 argument: node")
+            }
+
+            val node = args[0] as? NodeInfo
+                ?: throw IllegalArgumentException("auto.clickNode() first argument must be a NodeInfo object")
+
+            val result = jsAuto.getAutomator().clickNode(node)
             return result
         }
     }

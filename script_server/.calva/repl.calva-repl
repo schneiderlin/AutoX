@@ -879,3 +879,6 @@ clj꞉squint-compiler.api꞉> 
 ;     }
 ;   ]
 ; }, :timestamp 2026-01-20_05-35-57}, :command/kind :command/save-layout}
+; Evaluating file: api.clj
+#'squint-compiler.api/command-handler
+clj꞉squint-compiler.api꞉> 

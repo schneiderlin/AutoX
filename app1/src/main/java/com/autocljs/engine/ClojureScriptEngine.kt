@@ -5,6 +5,7 @@ import android.util.Log
 import com.autocljs.runtime.ScriptRuntime
 import com.autocljs.runtime.api.JsAuto
 import com.autocljs.runtime.api.JsConsole
+import com.autocljs.runtime.api.JsLayout
 import com.autocljs.script.ScriptSource
 import com.autocljs.script.StringScriptSource
 import org.mozilla.javascript.Context as RhinoContext
@@ -71,9 +72,12 @@ class ClojureScriptEngine(
             
             // Expose Console API to JavaScript
             exposeConsole(ctx)
-            
+
             // Expose Auto API to JavaScript
             exposeAuto(ctx)
+
+            // Expose Layout API to JavaScript
+            exposeLayout(ctx)
             
             Log.d(LOG_TAG, "Rhino scope initialized")
         } catch (e: Exception) {
@@ -137,7 +141,36 @@ class ClojureScriptEngine(
             throw RuntimeException("Failed to expose auto API", e)
         }
     }
-    
+
+    /**
+     * Expose Layout API to JavaScript.
+     * Makes layout.findOne(), layout.findAll(), etc. available in JavaScript code.
+     *
+     * Note: The layout inspector must be initialized via runtime.initLayoutInspector() before
+     * JavaScript code can use the layout API. This is typically done in TestActivity
+     * or similar before executing scripts.
+     */
+    private fun exposeLayout(ctx: RhinoContext) {
+        val scp = scope ?: throw IllegalStateException("Scope not initialized")
+        val rt = runtime ?: throw IllegalStateException("Runtime not initialized")
+
+        try {
+            // Create JavaScript layout wrapper
+            val jsLayout = JsLayout(rt)
+
+            // Set parent scope for the layout object
+            jsLayout.parentScope = scp
+
+            // Expose layout to JavaScript global scope
+            ScriptableObject.putProperty(scp, "layout", jsLayout)
+
+            Log.d(LOG_TAG, "Layout API exposed to JavaScript")
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Failed to expose layout API", e)
+            throw RuntimeException("Failed to expose layout API", e)
+        }
+    }
+
     override fun put(name: String, value: Any?) {
         if (!isInitialized) {
             throw IllegalStateException("Engine not initialized. Call init() first.")
