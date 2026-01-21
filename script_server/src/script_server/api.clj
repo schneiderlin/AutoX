@@ -44,12 +44,23 @@
   (println "Creating Ring WebSocket server...")
   (jm/make-ring-ws-server config))
 
+(defonce !ws-adapter (atom nil))
+
+(comment
+  ;; Check connected clients
+  @(:clients @!ws-adapter)
+  
+  ;; Broadcast a message from REPL
+  ((:broadcast! @!ws-adapter) :server/announcement {:msg "Hello from REPL!"}) 
+  :rcf)
+
 ;; Start WebSocket handler
 (defmethod ig/init-key :ws/ws-handler [_ {:keys [ws-server]}]
   (when ws-server
     (println "Starting WebSocket handler...")
     (let [stop-ch (async/chan)
           adapter (jm/ws-adapter ws-server)
+          _ (reset! !ws-adapter adapter)
           handler (jm/make-unified-ws-handler ws/ws-handler)]
       (handler stop-ch adapter)
       stop-ch)))

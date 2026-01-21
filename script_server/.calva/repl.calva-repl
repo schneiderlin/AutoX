@@ -1,33 +1,17 @@
-; Jacking in...
-; Connecting using "deps.edn" project type.
-; Starting Jack-in: pushd c:\Users\Administrator\Desktop\workspace\opensource\AutoX\script_server & java -jar "c:\Users\Administrator\.cursor\extensions\betterthantomorrow.calva-2.0.545-universal\deps.clj.jar" -Sdeps "{:deps {nrepl/nrepl {:mvn/version,\"1.5.1\"},cider/cider-nrepl {:mvn/version,\"0.58.0\"}}}" -M -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]" & popd
-; Using host:port ieonline.microsoft.com:60459 ...
-; Hooking up nREPL sessions on port 60459...
-; Connected session: clj, port: 60459
-; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
-nil
-clj꞉user꞉> 
-; Jack-in done.
-clj꞉user꞉> 
-; Evaluating file: api.clj
-; 
-; ; clj  script-server.api 
-; SLF4J(W): No SLF4J providers were found.
-; SLF4J(W): Defaulting to no-operation (NOP) logger implementation
-; SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+; [ring-ws] Request to /ws, upgrade? true
+; [ring-ws] Client ID: android_test
+; [ring-ws] on-open called for android_test sockets atom: 1093830374
+; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x678c1dd0 ring.adapter.jetty$websocket_socket$reify__10494@678c1dd0]}
+; [adapter] Checking clients, sockets atom: 1093830374 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x678c1dd0 ring.adapter.jetty$websocket_socket$reify__10494@678c1dd0]}
+{:any #{"android_test"}}
+clj꞉script-server.api꞉> 
+; WebSocket event: :ws/message from: android_test data: nil
+; Unknown event, echoing back: :ws/message
+; WebSocket event: :ws/message from: android_test data: {:message Hello from Android}
+; Unknown event, echoing back: :ws/message
 nil
 clj꞉script-server.api꞉> 
-; Creating Ring WebSocket server...
-; Starting WebSocket handler...
-#'script-server.api/system
+nil
 clj꞉script-server.api꞉> 
-; Evaluating file: ws.clj
 nil
-clj꞉script-server.ws꞉> 
-nil
-clj꞉script-server.ws꞉> 
-nil
-clj꞉script-server.ws꞉> 
-; No WebSocket context available. Is the server running?
-nil
-clj꞉script-server.ws꞉> 
+clj꞉script-server.api꞉> 
