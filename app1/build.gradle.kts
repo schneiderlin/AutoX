@@ -25,10 +25,33 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
+    }
+    
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     lint {
         abortOnError = false
+    }
+    
+    packaging {
+        resources {
+            excludes += listOf(
+                "META-INF/INDEX.LIST",
+                "META-INF/io.netty.versions.properties",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/license.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/notice.txt",
+                "META-INF/ASL2.0",
+                "META-INF/*.kotlin_module"
+            )
+        }
     }
 
     namespace = "com.autocljs"
@@ -47,6 +70,19 @@ dependencies {
     
     // Javet (V8/Node.js) for ES module support
     implementation("com.caoccao.javet:javet-node-android:5.0.2")
+    
+    // Ktor WebSocket client
+    implementation(libs.bundles.ktor)
+    
+    // Gson for JSON parsing
+    implementation(libs.google.gson)
+    
+    // Compose for WebSocketTestActivity UI
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.activity:activity-compose:1.8.2")
     
     // For ClojureScript integration (will be added when we integrate ClojureScript)
     // For now, we'll port the core interfaces and structures

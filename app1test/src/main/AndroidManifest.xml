@@ -19,10 +19,22 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:label">
         
+        <!-- Temporarily commented out to test WebSocket
         <activity
             android:name=".TestActivity"
             android:exported="true"
             android:label="AutoCLJS Test">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        -->
+        
+        <activity
+            android:name="com.autocljs.testapp.WebSocketTestActivity"
+            android:exported="true"
+            android:label="WebSocket Test">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

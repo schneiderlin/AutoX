@@ -2,8 +2,10 @@
   (:gen-class)
   (:require
    [ring.adapter.jetty :as jetty]
-   [com.zihao.jetty-main.interface :as jm] 
-   [squint-compiler.api :as compiler] 
+   [com.zihao.jetty-main.interface :as jm]
+   [squint-compiler.api :as compiler]
+   [script-server.ws :as ws]
+   [clojure.core.async :as async]
    [integrant.core :as ig]))
 
 (defn normalize-command [command]
@@ -30,10 +32,32 @@
   :rcf)
 
 (def config
-  {:jetty/routes {:ws-server nil}
+  {:ws/ws-server {:format :json}  ;; Will be initialized to Ring WS server
+   :ws/ws-handler {:ws-server (ig/ref :ws/ws-server)}
+   :jetty/routes {:ws-server (ig/ref :ws/ws-server)}
    :jetty/handler (ig/ref :jetty/routes)
    :adapter/jetty {:port (Integer. (or (System/getenv "PORT") "3000"))
                    :handler (ig/ref :jetty/handler)}})
+
+;; Create Ring WebSocket server
+(defmethod ig/init-key :ws/ws-server [_ config]
+  (println "Creating Ring WebSocket server...")
+  (jm/make-ring-ws-server config))
+
+;; Start WebSocket handler
+(defmethod ig/init-key :ws/ws-handler [_ {:keys [ws-server]}]
+  (when ws-server
+    (println "Starting WebSocket handler...")
+    (let [stop-ch (async/chan)
+          adapter (jm/ws-adapter ws-server)
+          handler (jm/make-unified-ws-handler ws/ws-handler)]
+      (handler stop-ch adapter)
+      stop-ch)))
+
+;; Cleanup WebSocket handler on halt
+(defmethod ig/halt-key! :ws/ws-handler [_ stop-ch]
+  (when stop-ch
+    (async/close! stop-ch)))
 
 (defmethod ig/init-key :jetty/routes [_ {:keys [ws-server] :as system}]
   (jm/make-routes system ws-server query-handler command-handler))
