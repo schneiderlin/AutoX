@@ -58,7 +58,7 @@ fun WebSocketTestScreen() {
     val scope = rememberCoroutineScope()
     
     // WebSocket instance
-    val webSocket = remember { ServerWebSocket() }
+    val webSocket = remember { ServerWebSocket(context) }
     
     // UI State
     var serverUrl by remember { mutableStateOf("ws://10.0.2.2:3000/ws") }

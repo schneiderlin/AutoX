@@ -1,7 +1,11 @@
 package com.autocljs.testapp
 
+import android.content.Context
 import android.util.Log
+import com.autocljs.layout.NodeInfo
+import com.autocljs.layout.getLayoutAsJson
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -19,7 +23,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.isActive
 
-class ServerWebSocket {
+class ServerWebSocket(
+    private val context: Context
+) {
     companion object {
         private const val TAG = "ServerWebSocket"
         private const val DEFAULT_SERVER_URL = "ws://localhost:3000/ws"
@@ -109,9 +115,42 @@ class ServerWebSocket {
                 Log.d(TAG, "Converted EDN to JSON: $jsonText")
                 gson.fromJson(jsonText, JsonObject::class.java)
             }
+
+            // Handle server commands (type field)
+            val type = json.get("type")?.asString
+            if (type != null) {
+                handleServerCommand(type, json)
+            }
+
+            // Also emit for UI observation
             _messages.emit(json)
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing message: $text", e)
+        }
+    }
+
+    private suspend fun handleServerCommand(type: String, json: JsonObject) {
+        when (type) {
+            "get-layout" -> handleGetLayout()
+            else -> Log.d(TAG, "Unknown command type: $type")
+        }
+    }
+
+    private suspend fun handleGetLayout() {
+        try {
+            val layoutJson = getLayoutAsJson()
+            if (layoutJson != null) {
+                // Parse the JSON string back to JsonObject for sending
+                val layoutData = gson.fromJson(layoutJson, JsonObject::class.java)
+                sendMessage("layout", mapOf("data" to layoutData.toString()))
+                Log.i(TAG, "Sent layout response")
+            } else {
+                sendMessage("error", mapOf("message" to "Failed to capture layout"))
+                Log.w(TAG, "Failed to capture layout")
+            }
+        } catch (e: Exception) {
+            sendMessage("error", mapOf("message" to (e.message ?: "Unknown error")))
+            Log.e(TAG, "Error handling get-layout", e)
         }
     }
     

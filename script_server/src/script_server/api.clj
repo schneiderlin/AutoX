@@ -60,6 +60,7 @@
     (println "Starting WebSocket handler...")
     (let [stop-ch (async/chan)
           adapter (jm/ws-adapter ws-server)
+          _ (ws/set-adapter! adapter)  ;; Store adapter for REPL access
           _ (reset! !ws-adapter adapter)
           handler (jm/make-unified-ws-handler ws/ws-handler)]
       (handler stop-ch adapter)

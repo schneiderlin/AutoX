@@ -1,17 +1,202 @@
+#<Atom@542dc39f: 
+  {:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26124],
+   :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26126],
+   :clients
+   #<core$make_ring_ws_adapter$reify__26128@26cec065: 
+     [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x151c0b92 ring.adapter.jetty$websocket_socket$reify__10494@151c0b92]}
+{:any #{"android_test"}}>,
+   :ch-recv
+   #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
+   :type :ring-ws,
+   :format :json,
+   :raw
+   {:sockets
+    #<Atom@39339242: 
+      {"android_test"
+       #object[ring.adapter.jetty$websocket_socket$reify__10494 0x151c0b92 "ring.adapter.jetty$websocket_socket$reify__10494@151c0b92"]}>,
+    :ch-recv
+    #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
+    :type :ring-ws,
+    :format :json}}>
+clj꞉script-server.ws꞉> 
+{:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26124],
+ :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26126],
+ :clients
+ #<core$make_ring_ws_adapter$reify__26128@26cec065: [adapter] Checking clients, sockets atom: 959681090 value: {}
+{:any #{}}>,
+ :ch-recv
+ #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
+ :type :ring-ws,
+ :format :json,
+ :raw
+ {:sockets #<Atom@39339242: {}>,
+  :ch-recv
+  #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
+  :type :ring-ws,
+  :format :json}}
+clj꞉script-server.ws꞉> 
 ; [ring-ws] Request to /ws, upgrade? true
 ; [ring-ws] Client ID: android_test
-; [ring-ws] on-open called for android_test sockets atom: 1093830374
-; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x678c1dd0 ring.adapter.jetty$websocket_socket$reify__10494@678c1dd0]}
-; [adapter] Checking clients, sockets atom: 1093830374 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x678c1dd0 ring.adapter.jetty$websocket_socket$reify__10494@678c1dd0]}
+; [ring-ws] on-open called for android_test sockets atom: 959681090
+; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
+{:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26124],
+ :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26126],
+ :clients
+ #<core$make_ring_ws_adapter$reify__26128@26cec065: 
+   [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
+{:any #{"android_test"}}>,
+ :ch-recv
+ #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
+ :type :ring-ws,
+ :format :json,
+ :raw
+ {:sockets
+  #<Atom@39339242: 
+    {"android_test"
+     #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d "ring.adapter.jetty$websocket_socket$reify__10494@1f80658d"]}>,
+  :ch-recv
+  #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
+  :type :ring-ws,
+  :format :json}}
+clj꞉script-server.ws꞉> 
+#<core$make_ring_ws_adapter$reify__26128@26cec065: 
+  [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
+{:any #{"android_test"}}>
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
 {:any #{"android_test"}}
-clj꞉script-server.api꞉> 
-; WebSocket event: :ws/message from: android_test data: nil
-; Unknown event, echoing back: :ws/message
-; WebSocket event: :ws/message from: android_test data: {:message Hello from Android}
-; Unknown event, echoing back: :ws/message
+clj꞉script-server.ws꞉> 
+#'script-server.ws/list-clients
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 959681090 value: {}
+{:any #{}}
+clj꞉script-server.ws꞉> 
+; Jacking in...
+; Connecting using "deps.edn" project type.
+; Starting Jack-in: pushd c:\Users\zihao\Desktop\workspace\opensource\autox\script_server & java -jar "c:\Users\zihao\.cursor\extensions\betterthantomorrow.calva-2.0.545-universal\deps.clj.jar" -Sdeps "{:deps {nrepl/nrepl {:mvn/version,\"1.5.1\"},cider/cider-nrepl {:mvn/version,\"0.58.0\"}}}" -M -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]" & popd
+; Using host:port kubernetes.docker.internal:14497 ...
+; Hooking up nREPL sessions on port 14497...
+; Connected session: clj, port: 14497
+; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
+nil
+clj꞉user꞉> 
+; Jack-in done.
+clj꞉user꞉> 
+; Evaluating file: api.clj
+; 
+; ; clj  script-server.api 
+; SLF4J(W): No SLF4J providers were found.
+; SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+; SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
 nil
 clj꞉script-server.api꞉> 
-nil
+; Creating Ring WebSocket server...
+; [ring-ws] Creating handler with format: :json sockets atom: 1638595487
+; [ring-ws] Creating handler with format: :json sockets atom: 1638595487
+; Starting WebSocket handler...
+; [adapter] Creating adapter with format: :json sockets atom: 1638595487
+#'script-server.api/system
 clj꞉script-server.api꞉> 
+; [ring-ws] Request to /ws, upgrade? true
+; [ring-ws] Client ID: android_test
+; [ring-ws] on-open called for android_test sockets atom: 1638595487
+; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Evaluating file: ws.clj
 nil
-clj꞉script-server.api꞉> 
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Client not found: android_test
+nil
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+#<core$make_ring_ws_adapter$reify__26151@580293e9: 
+  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}>
+clj꞉script-server.ws꞉> 
+#<core$make_ring_ws_adapter$reify__26151@580293e9: 
+  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}>
+clj꞉script-server.ws꞉> 
+; Syntax error compiling at (c:\Users\zihao\Desktop\workspace\opensource\autox\script_server\src\script_server\ws.clj:28:23).
+; Unable to resolve symbol: client-id in this context
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+nil
+clj꞉script-server.ws꞉> 
+nil
+clj꞉script-server.ws꞉> 
+{:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26147],
+ :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26149],
+ :clients
+ #<core$make_ring_ws_adapter$reify__26151@580293e9: 
+   [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}>,
+ :ch-recv
+ #object[clojure.core.async.impl.channels.ManyToManyChannel 0x6a08535 "clojure.core.async.impl.channels.ManyToManyChannel@6a08535"],
+ :type :ring-ws,
+ :format :json,
+ :raw
+ {:sockets
+  #<Atom@61aafb9f: 
+    {"android_test"
+     #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a "ring.adapter.jetty$websocket_socket$reify__10494@409e255a"]}>,
+  :ch-recv
+  #object[clojure.core.async.impl.channels.ManyToManyChannel 0x6a08535 "clojure.core.async.impl.channels.ManyToManyChannel@6a08535"],
+  :type :ring-ws,
+  :format :json}}
+clj꞉script-server.ws꞉> 
+#<core$make_ring_ws_adapter$reify__26151@580293e9: 
+  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}>
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+nil
+clj꞉script-server.ws꞉> 
+#<core$make_ring_ws_adapter$reify__26151@580293e9: 
+  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}>
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+{:any #{"android_test"}}
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+#{"android_test"}
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+"android_test"
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Evaluating file: ws.clj
+nil
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Sending to android_test : :get-layout {}
+{:event :get-layout, :data {}}
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Sending to android_test : :get-layout {}
+{:event :get-layout, :data {}}
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Broadcasting :notification to all clients
+nil
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; Broadcasting :get-layout to all clients
+nil
+clj꞉script-server.ws꞉> 
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}

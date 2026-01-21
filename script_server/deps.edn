@@ -1,6 +1,6 @@
 {:paths ["src"]
  :deps {linzihao/jetty-main {:git/url "https://github.com/schneiderlin/synapse.git"
-                             :git/sha "468e41be8a143e7d7e47b402fbc0faa1a33dd6da"
+                             :git/sha "728d14f2fbc16e0d1872fd2ec017a0f9f012a6f3"
                              :deps/root "components/jetty-main"}
         org.clojure/core.async {:mvn/version "1.6.681"}
         org.clojure/data.json {:mvn/version "2.5.0"}}}
