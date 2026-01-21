@@ -66,19 +66,19 @@
       :ws/open
       (do
         (println "Client connected:" client-id)
-        (reply! {:type "connected"
+        (reply! {:event :connected
                  :message "WebSocket connection established"
                  :client-id client-id}))
 
       ;; Ping/pong for keep-alive
       :ping
-      (reply! {:type "pong" :timestamp (System/currentTimeMillis)})
+      (reply! {:event :pong :timestamp (System/currentTimeMillis)})
 
       ;; Test message from client button press
       :test
       (do
         (println "Test message received from" client-id ":" data)
-        (reply! {:type "test_response"
+        (reply! {:event :test_response
                  :message "Server received test message"
                  :echo data}))
 
@@ -91,14 +91,14 @@
         ;; (spit (str "layouts/layout_" (System/currentTimeMillis) ".json")
         ;;       (:data data))
         ;; Acknowledge receipt
-        (reply! {:type "layout_received"
+        (reply! {:event :layout_received
                  :timestamp (System/currentTimeMillis)}))
 
       ;; Run script command (placeholder for future)
       :run-script
       (do
         (println "Run script request:" data)
-        (reply! {:type "script_queued" :script (:script data)}))
+        (reply! {:event :script_queued :script (:script data)}))
 
       ;; Disconnection
       :ws/close
@@ -107,7 +107,7 @@
       ;; Default: echo back
       (do
         (println "Unknown event, echoing back:" event)
-        (reply! {:type "echo" :event (name event) :data data})))))
+        (reply! {:event :echo :original-event (name event) :data data})))))
 
 
 (comment

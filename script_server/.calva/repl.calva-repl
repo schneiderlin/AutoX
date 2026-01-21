@@ -1,202 +1,32 @@
-#<Atom@542dc39f: 
-  {:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26124],
-   :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26126],
-   :clients
-   #<core$make_ring_ws_adapter$reify__26128@26cec065: 
-     [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x151c0b92 ring.adapter.jetty$websocket_socket$reify__10494@151c0b92]}
-{:any #{"android_test"}}>,
-   :ch-recv
-   #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
-   :type :ring-ws,
-   :format :json,
-   :raw
-   {:sockets
-    #<Atom@39339242: 
-      {"android_test"
-       #object[ring.adapter.jetty$websocket_socket$reify__10494 0x151c0b92 "ring.adapter.jetty$websocket_socket$reify__10494@151c0b92"]}>,
-    :ch-recv
-    #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
-    :type :ring-ws,
-    :format :json}}>
-clj꞉script-server.ws꞉> 
-{:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26124],
- :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26126],
- :clients
- #<core$make_ring_ws_adapter$reify__26128@26cec065: [adapter] Checking clients, sockets atom: 959681090 value: {}
-{:any #{}}>,
- :ch-recv
- #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
- :type :ring-ws,
- :format :json,
- :raw
- {:sockets #<Atom@39339242: {}>,
-  :ch-recv
-  #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
-  :type :ring-ws,
-  :format :json}}
-clj꞉script-server.ws꞉> 
-; [ring-ws] Request to /ws, upgrade? true
-; [ring-ws] Client ID: android_test
-; [ring-ws] on-open called for android_test sockets atom: 959681090
-; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
-{:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26124],
- :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26126],
- :clients
- #<core$make_ring_ws_adapter$reify__26128@26cec065: 
-   [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
-{:any #{"android_test"}}>,
- :ch-recv
- #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
- :type :ring-ws,
- :format :json,
- :raw
- {:sockets
-  #<Atom@39339242: 
-    {"android_test"
-     #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d "ring.adapter.jetty$websocket_socket$reify__10494@1f80658d"]}>,
-  :ch-recv
-  #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e180956 "clojure.core.async.impl.channels.ManyToManyChannel@1e180956"],
-  :type :ring-ws,
-  :format :json}}
-clj꞉script-server.ws꞉> 
-#<core$make_ring_ws_adapter$reify__26128@26cec065: 
-  [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
-{:any #{"android_test"}}>
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 959681090 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x1f80658d ring.adapter.jetty$websocket_socket$reify__10494@1f80658d]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x2addb68e ring.adapter.jetty$websocket_socket$reify__10494@2addb68e]}
 {:any #{"android_test"}}
 clj꞉script-server.ws꞉> 
-#'script-server.ws/list-clients
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 959681090 value: {}
-{:any #{}}
-clj꞉script-server.ws꞉> 
-; Jacking in...
-; Connecting using "deps.edn" project type.
-; Starting Jack-in: pushd c:\Users\zihao\Desktop\workspace\opensource\autox\script_server & java -jar "c:\Users\zihao\.cursor\extensions\betterthantomorrow.calva-2.0.545-universal\deps.clj.jar" -Sdeps "{:deps {nrepl/nrepl {:mvn/version,\"1.5.1\"},cider/cider-nrepl {:mvn/version,\"0.58.0\"}}}" -M -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]" & popd
-; Using host:port kubernetes.docker.internal:14497 ...
-; Hooking up nREPL sessions on port 14497...
-; Connected session: clj, port: 14497
-; Evaluating code from settings: 'calva.autoEvaluateCode.onConnect.clj'
-nil
-clj꞉user꞉> 
-; Jack-in done.
-clj꞉user꞉> 
-; Evaluating file: api.clj
-; 
-; ; clj  script-server.api 
-; SLF4J(W): No SLF4J providers were found.
-; SLF4J(W): Defaulting to no-operation (NOP) logger implementation
-; SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
-nil
-clj꞉script-server.api꞉> 
-; Creating Ring WebSocket server...
-; [ring-ws] Creating handler with format: :json sockets atom: 1638595487
-; [ring-ws] Creating handler with format: :json sockets atom: 1638595487
-; Starting WebSocket handler...
-; [adapter] Creating adapter with format: :json sockets atom: 1638595487
-#'script-server.api/system
-clj꞉script-server.api꞉> 
-; [ring-ws] Request to /ws, upgrade? true
-; [ring-ws] Client ID: android_test
-; [ring-ws] on-open called for android_test sockets atom: 1638595487
-; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; Evaluating file: ws.clj
-nil
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; Client not found: android_test
-nil
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-#<core$make_ring_ws_adapter$reify__26151@580293e9: 
-  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}>
-clj꞉script-server.ws꞉> 
-#<core$make_ring_ws_adapter$reify__26151@580293e9: 
-  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}>
-clj꞉script-server.ws꞉> 
-; Syntax error compiling at (c:\Users\zihao\Desktop\workspace\opensource\autox\script_server\src\script_server\ws.clj:28:23).
-; Unable to resolve symbol: client-id in this context
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-nil
-clj꞉script-server.ws꞉> 
-nil
-clj꞉script-server.ws꞉> 
-{:send! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26147],
- :broadcast! #function[com.zihao.jetty-main.core/make-ring-ws-adapter/fn--26149],
- :clients
- #<core$make_ring_ws_adapter$reify__26151@580293e9: 
-   [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}>,
- :ch-recv
- #object[clojure.core.async.impl.channels.ManyToManyChannel 0x6a08535 "clojure.core.async.impl.channels.ManyToManyChannel@6a08535"],
- :type :ring-ws,
- :format :json,
- :raw
- {:sockets
-  #<Atom@61aafb9f: 
-    {"android_test"
-     #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a "ring.adapter.jetty$websocket_socket$reify__10494@409e255a"]}>,
-  :ch-recv
-  #object[clojure.core.async.impl.channels.ManyToManyChannel 0x6a08535 "clojure.core.async.impl.channels.ManyToManyChannel@6a08535"],
-  :type :ring-ws,
-  :format :json}}
-clj꞉script-server.ws꞉> 
-#<core$make_ring_ws_adapter$reify__26151@580293e9: 
-  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}>
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-nil
-clj꞉script-server.ws꞉> 
-#<core$make_ring_ws_adapter$reify__26151@580293e9: 
-  [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}>
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-{:any #{"android_test"}}
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-#{"android_test"}
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-"android_test"
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; Evaluating file: ws.clj
-nil
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x2addb68e ring.adapter.jetty$websocket_socket$reify__10494@2addb68e]}
 ; Sending to android_test : :get-layout {}
 {:event :get-layout, :data {}}
 clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; Sending to android_test : :get-layout {}
-{:event :get-layout, :data {}}
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; Broadcasting :notification to all clients
-nil
-clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
 ; Broadcasting :get-layout to all clients
 nil
 clj꞉script-server.ws꞉> 
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
-; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x409e255a ring.adapter.jetty$websocket_socket$reify__10494@409e255a]}
+; WebSocket event: :error from: android_test data: {:message AccessibilityService is not enabled}
+; Unknown event, echoing back: :error
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x2addb68e ring.adapter.jetty$websocket_socket$reify__10494@2addb68e]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {}
+; [ring-ws] Request to /ws, upgrade? true
+; [ring-ws] Client ID: android_test
+; [ring-ws] on-open called for android_test sockets atom: 1638595487
+; [ring-ws] After swap, sockets: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; Broadcasting :get-layout to all clients
+nil
+clj꞉script-server.ws꞉> 
+; WebSocket event: :layout from: android_test data: {:data {"className":"android.widget.FrameLayout","id":"","text":"null","desc":"null","bounds":"[0, 0][1080, 2400]","clickable":false,"depth":0,"children":[{"className":"android.widget.LinearLayout","id":"","text":"null","desc":"null","bounds":"[0, 0][1080, 2337]","clickable":false,"depth":1,"children":[{"className":"android.widget.FrameLayout","id":"android:id/content","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":2,"children":[{"className":"androidx.compose.ui.platform.ComposeView","id":"","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":3,"children":[{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":4,"children":[{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":5,"children":[{"className":"android.widget.TextView","id":"","text":"WebSocket Test","desc":"null","bounds":"[42, 163][568, 258]","clickable":false,"depth":6,"children":[]},{"className":"android.widget.EditText","id":"","text":"ws://10.0.2.2:3000/ws","desc":"null","bounds":"[42, 300][1038, 468]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Server URL","desc":"null","bounds":"[84, 300][246, 342]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.EditText","id":"","text":"android_test","desc":"null","bounds":"[42, 510][1038, 678]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Client ID","desc":"null","bounds":"[84, 510][209, 552]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.TextView","id":"","text":"✓ Connected","desc":"null","bounds":"[42, 752][303, 815]","clickable":false,"depth":6,"children":[]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[901, 720][1038, 846]","clickable":true,"depth":6,"children":[]},{"className":"android.widget.TextView","id":"","text":"Send Message","desc":"null","bounds":"[42, 933][328, 996]","clickable":false,"depth":6,"children":[]},{"className":"android.widget.EditText","id":"","text":"Hello from Android","desc":"null","bounds":"[42, 1038][1038, 1206]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Message","desc":"null","bounds":"[84, 1038][217, 1080]","clickable":false,"depth":7,"children":[]}]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[42, 1249][529, 1375]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Send Test","desc":"null","bounds":"[204, 1285][368, 1338]","clickable":false,"depth":7,"children":[]},{"className":"android.widget.Button","id":"","text":"null","desc":"null","bounds":"[42, 1259][529, 1364]","clickable":false,"depth":7,"children":[]}]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[550, 1249][1038, 1375]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Ping","desc":"null","bounds":"[757, 1285][831, 1338]","clickable":false,"depth":7,"children":[]},{"className":"android.widget.Button","id":"","text":"null","desc":"null","bounds":"[550, 1259][1038, 1364]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.TextView","id":"","text":"Message Log","desc":"null","bounds":"[42, 1461][304, 1524]","clickable":false,"depth":6,"children":[]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[886, 1567][1038, 1693]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Clear","desc":"null","bounds":"[919, 1603][1006, 1656]","clickable":false,"depth":7,"children":[]},{"className":"android.widget.Button","id":"","text":"null","desc":"null","bounds":"[886, 1577][1038, 1682]","clickable":false,"depth":7,"children":[]}]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[42, 1734][1038, 2211]","clickable":false,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"No messages yet...","desc":"null","bounds":"[63, 1755][1017, 2190]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.TextView","id":"","text":"Tip: Use 10.0.2.2 for emulator to reach host localhost","desc":"null","bounds":"[42, 2253][832, 2295]","clickable":false,"depth":6,"children":[]}]}]}]}]}]},{"className":"android.view.View","id":"android:id/statusBarBackground","text":"null","desc":"null","bounds":"[0, 0][1080, 121]","clickable":false,"depth":1,"children":[]},{"className":"android.view.View","id":"android:id/navigationBarBackground","text":"null","desc":"null","bounds":"[0, 2337][1080, 2400]","clickable":false,"depth":1,"children":[]}]}}
+; Layout received from android_test
+; Layout data: {:data {"className":"android.widget.FrameLayout","id":"","text":"null","desc":"null","bounds":"[0, 0][1080, 2400]","clickable":false,"depth":0,"children":[{"className":"android.widget.LinearLayout","id":"","text":"null","desc":"null","bounds":"[0, 0][1080, 2337]","clickable":false,"depth":1,"children":[{"className":"android.widget.FrameLayout","id":"android:id/content","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":2,"children":[{"className":"androidx.compose.ui.platform.ComposeView","id":"","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":3,"children":[{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":4,"children":[{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[0, 121][1080, 2337]","clickable":false,"depth":5,"children":[{"className":"android.widget.TextView","id":"","text":"WebSocket Test","desc":"null","bounds":"[42, 163][568, 258]","clickable":false,"depth":6,"children":[]},{"className":"android.widget.EditText","id":"","text":"ws://10.0.2.2:3000/ws","desc":"null","bounds":"[42, 300][1038, 468]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Server URL","desc":"null","bounds":"[84, 300][246, 342]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.EditText","id":"","text":"android_test","desc":"null","bounds":"[42, 510][1038, 678]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Client ID","desc":"null","bounds":"[84, 510][209, 552]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.TextView","id":"","text":"✓ Connected","desc":"null","bounds":"[42, 752][303, 815]","clickable":false,"depth":6,"children":[]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[901, 720][1038, 846]","clickable":true,"depth":6,"children":[]},{"className":"android.widget.TextView","id":"","text":"Send Message","desc":"null","bounds":"[42, 933][328, 996]","clickable":false,"depth":6,"children":[]},{"className":"android.widget.EditText","id":"","text":"Hello from Android","desc":"null","bounds":"[42, 1038][1038, 1206]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Message","desc":"null","bounds":"[84, 1038][217, 1080]","clickable":false,"depth":7,"children":[]}]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[42, 1249][529, 1375]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Send Test","desc":"null","bounds":"[204, 1285][368, 1338]","clickable":false,"depth":7,"children":[]},{"className":"android.widget.Button","id":"","text":"null","desc":"null","bounds":"[42, 1259][529, 1364]","clickable":false,"depth":7,"children":[]}]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[550, 1249][1038, 1375]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Ping","desc":"null","bounds":"[757, 1285][831, 1338]","clickable":false,"depth":7,"children":[]},{"className":"android.widget.Button","id":"","text":"null","desc":"null","bounds":"[550, 1259][1038, 1364]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.TextView","id":"","text":"Message Log","desc":"null","bounds":"[42, 1461][304, 1524]","clickable":false,"depth":6,"children":[]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[886, 1567][1038, 1693]","clickable":true,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"Clear","desc":"null","bounds":"[919, 1603][1006, 1656]","clickable":false,"depth":7,"children":[]},{"className":"android.widget.Button","id":"","text":"null","desc":"null","bounds":"[886, 1577][1038, 1682]","clickable":false,"depth":7,"children":[]}]},{"className":"android.view.View","id":"","text":"null","desc":"null","bounds":"[42, 1734][1038, 2211]","clickable":false,"depth":6,"children":[{"className":"android.widget.TextView","id":"","text":"No messages yet...","desc":"null","bounds":"[63, 1755][1017, 2190]","clickable":false,"depth":7,"children":[]}]},{"className":"android.widget.TextView","id":"","text":"Tip: Use 10.0.2.2 for emulator to reach host localhost","desc":"null","bounds":"[42, 2253][832, 2295]","clickable":false,"depth":6,"children":[]}]}]}]}]}]},{"className":"android.view.View","id":"android:id/statusBarBackground","text":"null","desc":"null","bounds":"[0, 0][1080, 121]","clickable":false,"depth":1,"children":[]},{"className":"android.view.View","id":"android:id/navigationBarBackground","text":"null","desc":"null","bounds":"[0, 2337][1080, 2400]","clickable":false,"depth":1,"children":[]}]}}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}
+; [adapter] Checking clients, sockets atom: 1638595487 value: {android_test #object[ring.adapter.jetty$websocket_socket$reify__10494 0x66655c50 ring.adapter.jetty$websocket_socket$reify__10494@66655c50]}

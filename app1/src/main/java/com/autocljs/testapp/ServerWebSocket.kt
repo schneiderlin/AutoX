@@ -116,10 +116,10 @@ class ServerWebSocket(
                 gson.fromJson(jsonText, JsonObject::class.java)
             }
 
-            // Handle server commands (type field)
-            val type = json.get("type")?.asString
-            if (type != null) {
-                handleServerCommand(type, json)
+            // Handle server commands (event field)
+            val event = json.get("event")?.asString
+            if (event != null) {
+                handleServerCommand(event, json)
             }
 
             // Also emit for UI observation
@@ -129,10 +129,10 @@ class ServerWebSocket(
         }
     }
 
-    private suspend fun handleServerCommand(type: String, json: JsonObject) {
-        when (type) {
+    private suspend fun handleServerCommand(command: String, json: JsonObject) {
+        when (command) {
             "get-layout" -> handleGetLayout()
-            else -> Log.d(TAG, "Unknown command type: $type")
+            else -> Log.d(TAG, "Unknown command: $command")
         }
     }
 
@@ -170,11 +170,11 @@ class ServerWebSocket(
         return result
     }
 
-    suspend fun sendMessage(type: String, data: Map<String, Any?> = emptyMap()) {
+    suspend fun sendMessage(event: String, data: Map<String, Any?> = emptyMap()) {
         session?.let {
             try {
                 val message = JsonObject().apply {
-                    addProperty("type", type)
+                    addProperty("event", event)
                     if (data.isNotEmpty()) {
                         val dataObj = JsonObject()
                         data.forEach { (k, v) ->
